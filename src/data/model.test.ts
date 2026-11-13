@@ -8,7 +8,11 @@ import { ROSTER } from './roster';
 import { parseWallTime } from './time';
 import type { Agent, VillageConfig } from './types';
 
-const config = cfg as unknown as VillageConfig;
+// Tests use the fixtures whatever real folders Ivan sets in village.config.json.
+const config: VillageConfig = (() => {
+  const c = cfg as unknown as VillageConfig;
+  return { ...c, projects: c.projects.map((p) => (p.fixturePath ? { ...p, path: null } : p)) };
+})();
 const fixtureOnly: VillageConfig = { ...config, projects: config.projects.filter((p) => p.id === 'flowbro') };
 // A frozen copy of the shape docs/progress.md had when this test was written. The live file changes
 // with every task, so the test must not import it.

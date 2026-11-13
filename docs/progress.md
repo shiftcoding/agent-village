@@ -2,7 +2,7 @@
 
 Stage: building
 Overall: 97%
-Updated: 2026-11-13 17:42
+Updated: 2026-11-13 18:05
 
 ## Needs you
 - [x] Review phase 1 (v1 static village) before phase 2 starts (raised by orchestrator)
@@ -143,3 +143,4 @@ Updated: 2026-11-13 17:42
 - 2026-11-13 17:30 orchestrator: Ivan approved phase 3 and the first art pass with the Answer in Claude button in chat; both review items checked off
 - 2026-11-13 17:42 ui-designer: Finished T39 round 2: buildings 1.2-1.25x with clear lit and shadow faces, dressing cut to 9 edge pieces
 - 2026-11-13 17:42 orchestrator: Reviews done (T41, T42); fixes T43 and T44 done; typecheck, 188 tests, build and sync pass; focus rings checked in the browser at 3 px and fitted to each building
+- 2026-11-13 18:05 orchestrator: FlowBro restarted in ~/src/flowbro from brief v2.0; village.config.json now points at it; browser fallback and tests keep using the FlowBro fixture

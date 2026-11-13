@@ -7,7 +7,7 @@
     {
       "id": "flowbro",
       "name": "FlowBro",
-      "path": null,
+      "path": "~/src/flowbro",
       "fixturePath": "fixtures/flowbro",
       "building": "hearth-lodge",
       "position": { "x": 3, "y": 2 }

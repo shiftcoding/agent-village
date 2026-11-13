@@ -22,7 +22,15 @@ const reviewFiles = import.meta.glob<string>(['../../fixtures/*/docs/reviews/*.m
   eager: true,
 });
 
-const config = rawConfig as unknown as VillageConfig;
+/**
+ * The browser can only read bundled files, so this fallback always shows a project's fixture when it has one,
+ * even after a real `path` is set in village.config.json (path: null keeps the fixture time rules honest).
+ * Real folders are read only by `npm run sync`.
+ */
+const config: VillageConfig = (() => {
+  const c = rawConfig as unknown as VillageConfig;
+  return { ...c, projects: c.projects.map((p) => (p.fixturePath ? { ...p, path: null } : p)) };
+})();
 
 function under(files: Record<string, string>, prefix: string): Array<{ file: string; text: string }> {
   return Object.entries(files)
