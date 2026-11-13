@@ -1,0 +1,962 @@
+/*
+ * Agent Village design tokens (v1). Owner: ui-designer.
+ * Light = warm daylight (default). Dark = warm night village (lamplight, not an inverted filter).
+ * All art and UI colours come from here; no hex in TSX. Contrast ratios: docs/design.md.
+ */
+:root {
+  color-scheme: light;
+
+  /* ---- UI ---- */
+  --va-bg: #f5ead2;
+  --va-surface: #fffaf0;
+  --va-surface-2: #efe2c3;
+  --va-text: #35261a;
+  --va-text-muted: #67523c;
+  --va-border: #8c7150;
+  --va-focus: #1c5db5;
+  --va-accent: #9c4220;
+  --va-on-accent: #fffaf0;
+  --va-alert: #b3261e;
+  --va-on-alert: #fffaf0;
+  --va-alert-glow: #ffd54a;
+  --va-ok: #2c6a3c;
+  --va-parchment: #f2e0b4;
+  --va-ink: #2b1c10;
+  --va-sign: #e8c98f;
+
+  /* ---- Signal icon colours (always paired with a shape and a text label) ---- */
+  --va-sig-active: #bd5600;
+  --va-sig-needs: #b3261e;
+  --va-sig-failing: #44577f;
+  --va-sig-friction: #7d3f9c;
+  --va-sig-stale: #5a771a;
+  --va-sig-released: #0f7676;
+  --va-sig-doing: #8a5a2b;
+  --va-sig-review: #2a68a8;
+  --va-sig-blocked: #b3261e;
+  --va-sig-todo: #7d6a1f;
+  --va-sig-idle: #8a5a2b;
+  --va-sig-stranger: #5c5a66;
+  --va-sig-nofolder: #8a5a2b;
+  --va-sig-noprogress: #566570;
+
+  /* ---- Scene: ground ---- */
+  --va-grass: #9bbf5e;
+  --va-grass-2: #86ad4f;
+  --va-grass-3: #b3cf72;
+  --va-path: #dcc08a;
+  --va-path-edge: #bf9f68;
+  --va-plaza: #dccfae;
+  --va-plaza-2: #c8b48d;
+  --va-water: #6fb3c9;
+  --va-shadow: #3a2a10;
+  --va-shadow-opacity: 0.22;
+  --va-sky-glow: #fff0c0;
+
+  /* ---- Scene: materials ---- */
+  --va-outline: #4a3320;
+  --va-shade: #3a2410;
+  --va-shade-opacity: 0.2;
+  --va-highlight: #fff3d0;
+  --va-wood: #a66f3e;
+  --va-wood-dark: #6e4423;
+  --va-wood-light: #c98d55;
+  --va-plaster: #f0e0bd;
+  --va-plaster-shade: #d8c397;
+  --va-stone: #aaa294;
+  --va-stone-dark: #7d766b;
+  --va-stone-light: #c9c2b3;
+  --va-roof: #b4553a;
+  --va-roof-dark: #8a3d29;
+  --va-roof-light: #cf7352;
+  --va-slate: #55708c;
+  --va-slate-dark: #3d5369;
+  --va-thatch: #d6a94a;
+  --va-thatch-dark: #a97d2c;
+  --va-window: #46586b;
+  --va-window-lit: #ffd27a;
+  --va-glow: #ffb84d;
+  --va-smoke: #ece5d9;
+  --va-cloud: #5d6577;
+  --va-cloud-dark: #3f4556;
+  --va-lightning: #ffe35a;
+  --va-rain: #7fa6d6;
+  --va-vine: #4d7a2c;
+  --va-vine-dark: #345a1d;
+  --va-leaf: #6b9a3a;
+  --va-flag: #0f8a8a;
+  --va-canvas: #efe6d0;
+  --va-canvas-stripe: #c9573f;
+  --va-blueprint: #3f78b8;
+  --va-blueprint-line: #dbe8f6;
+  --va-gold: #d9a520;
+  --va-gold-dark: #a67a10;
+  --va-firework-1: #ff6b5a;
+  --va-firework-2: #ffd54a;
+  --va-firework-3: #5ad1c8;
+
+  /* ---- Scene: people ---- */
+  --va-skin-1: #f0c49b;
+  --va-skin-2: #c98a5e;
+  --va-skin-3: #8a5532;
+  --va-hair-dark: #4a3020;
+  --va-hair-brown: #7a4a28;
+  --va-hair-red: #b0482a;
+  --va-hair-blond: #d9b05a;
+  --va-hair-grey: #c9c4bc;
+  --va-hair-white: #f1ede4;
+  --va-mask: #f4efe4;
+  --va-c-purple: #6f4aa8;
+  --va-c-purple-dark: #4b2f7c;
+  --va-c-blue: #3f6fb5;
+  --va-c-teal: #2f8c84;
+  --va-c-magenta: #b8458f;
+  --va-c-copper: #b86a3a;
+  --va-c-navy: #2d4a78;
+  --va-c-steel: #aab4c0;
+  --va-c-steel-dark: #7b8794;
+  --va-c-forest: #4a7a3c;
+  --va-c-cyan: #35a3c2;
+  --va-c-slate: #5b6572;
+  --va-c-orange: #d9822b;
+  --va-c-red: #c0392b;
+  --va-c-olive: #8a8a3a;
+  --va-c-cream: #f1e6cc;
+  --va-c-moss: #2f5233;
+  --va-c-brown: #7a5230;
+  --va-c-sage: #8fb08c;
+  --va-c-burgundy: #8a2f4a;
+  --va-c-grey: #7c7a80;
+  --va-c-yellow: #e8c040;
+
+  /* ---- Art pass (T31): painterly layers. Textures, sheen and ambient occlusion are low-contrast overlays;
+     these numbers are their strength. Colours come from the existing material tokens, so day parts apply. ---- */
+  --va-tex-opacity: 0.9;
+  --va-sheen-opacity: 0.4;
+  --va-ao-opacity: 0.38;
+  /* Ground texture polarity: the light-theme focus ring is dark blue, so it needs a light ground (only LIGHT marks);
+     the dark-theme ring is pale, so it needs a dark ground (mostly DARK marks). 0..1 multipliers. */
+  --va-tex-dark: 0;
+  --va-tex-light: 0.75;
+  --va-vignette: 0;
+  --va-blush: #e8806a;
+  --va-flower-1: #f6f0e0;
+  --va-flower-2: #e9a0bc;
+  --va-flower-3: #f0c64a;
+}
+
+/* Warm night village. Same token names, lamp-lit values. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --va-bg: #1d1610;
+  --va-surface: #2a2017;
+  --va-surface-2: #382b20;
+  --va-text: #f3e6cc;
+  --va-text-muted: #c9b593;
+  --va-border: #98825f;
+  --va-focus: #7db4ff;
+  --va-accent: #f0a060;
+  --va-on-accent: #1d1610;
+  --va-alert: #ff8a7a;
+  --va-on-alert: #2b1c10;
+  --va-alert-glow: #ffd54a;
+  --va-ok: #7fcf8f;
+  --va-parchment: #dcc794;
+  --va-ink: #2b1c10;
+  --va-sign: #c9a874;
+
+  --va-sig-active: #ff9a4a;
+  --va-sig-needs: #ff8a7a;
+  --va-sig-failing: #9fb3e6;
+  --va-sig-friction: #d3a2ea;
+  --va-sig-stale: #a9cc5e;
+  --va-sig-released: #4fd0cf;
+  --va-sig-doing: #d9a56a;
+  --va-sig-review: #7ab6f0;
+  --va-sig-blocked: #ff8a7a;
+  --va-sig-todo: #d9c46e;
+  --va-sig-idle: #d9a56a;
+  --va-sig-stranger: #bcbac8;
+  --va-sig-nofolder: #d9a56a;
+  --va-sig-noprogress: #a9b8c2;
+
+  --va-grass: #35502f;
+  --va-grass-2: #2b4327;
+  --va-grass-3: #43623a;
+  --va-path: #6b5638;
+  --va-path-edge: #53432c;
+  --va-plaza: #5f5247;
+  --va-plaza-2: #4f443b;
+  --va-water: #2f5f78;
+  --va-shadow: #05030a;
+  --va-shadow-opacity: 0.4;
+  --va-sky-glow: #ffcf80;
+
+  --va-outline: #140d07;
+  --va-shade: #07040a;
+  --va-shade-opacity: 0.32;
+  --va-highlight: #ffd9a0;
+  --va-wood: #8d5c34;
+  --va-wood-dark: #55341c;
+  --va-wood-light: #aa7444;
+  --va-plaster: #b8a583;
+  --va-plaster-shade: #8f7e63;
+  --va-stone: #7d786f;
+  --va-stone-dark: #5c574f;
+  --va-stone-light: #948e83;
+  --va-roof: #8a4331;
+  --va-roof-dark: #6a2f21;
+  --va-roof-light: #a35a44;
+  --va-slate: #3f566e;
+  --va-slate-dark: #2d4054;
+  --va-thatch: #a98238;
+  --va-thatch-dark: #7e5e22;
+  --va-window: #1f2a36;
+  --va-window-lit: #ffd27a;
+  --va-glow: #ff9d3a;
+  --va-smoke: #b9b0a2;
+  --va-cloud: #4a4f63;
+  --va-cloud-dark: #33374a;
+  --va-rain: #8fb4e6;
+  --va-vine: #5f9a38;
+  --va-vine-dark: #3f6e24;
+  --va-leaf: #7fb24a;
+  --va-flag: #1fb0b0;
+  --va-canvas: #c9bfa6;
+  --va-canvas-stripe: #a8503b;
+  --va-blueprint: #3f78b8;
+  --va-gold: #e0ad2c;
+
+  --va-skin-1: #d9aa82;
+  --va-skin-2: #b0764c;
+  --va-skin-3: #7a4a2b;
+  --va-hair-dark: #2f1d12;
+  --va-hair-grey: #aaa59d;
+  --va-hair-white: #d9d4c8;
+  --va-mask: #d9d2c2;
+  --va-c-purple: #8a66c4;
+  --va-c-purple-dark: #5e3f96;
+  --va-c-blue: #5688d0;
+  --va-c-teal: #3fa79e;
+  --va-c-magenta: #cf5fa8;
+  --va-c-copper: #cf8050;
+  --va-c-navy: #4165a0;
+  --va-c-steel: #8d98a5;
+  --va-c-steel-dark: #66717d;
+  --va-c-forest: #5e9650;
+  --va-c-cyan: #4cbcdb;
+  --va-c-slate: #7a8696;
+  --va-c-orange: #e8923a;
+  --va-c-red: #d9503f;
+  --va-c-olive: #a0a048;
+  --va-c-cream: #cfc4aa;
+  --va-c-moss: #3f6c44;
+  --va-c-brown: #94693f;
+  --va-c-sage: #7a9c77;
+  --va-c-burgundy: #a8435f;
+  --va-c-grey: #9a98a0;
+  --va-c-yellow: #e0b838;
+  --va-tex-opacity: 0.75;
+  --va-sheen-opacity: 0.22;
+  --va-sky-glow-opacity: 0.35;
+  --va-tex-dark: 1;
+  --va-tex-light: 0.35;
+  --va-vignette: 1;
+  --va-ao-opacity: 0.5;
+  --va-blush: #d9735f;
+  --va-flower-1: #cfc8b4;
+  --va-flower-2: #b97a92;
+  --va-flower-3: #c9a23a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --va-bg: #1d1610;
+    --va-surface: #2a2017;
+    --va-surface-2: #382b20;
+    --va-text: #f3e6cc;
+    --va-text-muted: #c9b593;
+    --va-border: #98825f;
+    --va-focus: #7db4ff;
+    --va-accent: #f0a060;
+    --va-on-accent: #1d1610;
+    --va-alert: #ff8a7a;
+    --va-on-alert: #2b1c10;
+    --va-alert-glow: #ffd54a;
+    --va-ok: #7fcf8f;
+    --va-parchment: #dcc794;
+    --va-ink: #2b1c10;
+    --va-sign: #c9a874;
+
+    --va-sig-active: #ff9a4a;
+    --va-sig-needs: #ff8a7a;
+    --va-sig-failing: #9fb3e6;
+    --va-sig-friction: #d3a2ea;
+    --va-sig-stale: #a9cc5e;
+    --va-sig-released: #4fd0cf;
+    --va-sig-doing: #d9a56a;
+    --va-sig-review: #7ab6f0;
+    --va-sig-blocked: #ff8a7a;
+    --va-sig-todo: #d9c46e;
+    --va-sig-idle: #d9a56a;
+    --va-sig-stranger: #bcbac8;
+    --va-sig-nofolder: #d9a56a;
+    --va-sig-noprogress: #a9b8c2;
+
+    --va-grass: #35502f;
+    --va-grass-2: #2b4327;
+    --va-grass-3: #43623a;
+    --va-path: #6b5638;
+    --va-path-edge: #53432c;
+    --va-plaza: #5f5247;
+    --va-plaza-2: #4f443b;
+    --va-water: #2f5f78;
+    --va-shadow: #05030a;
+    --va-shadow-opacity: 0.4;
+    --va-sky-glow: #ffcf80;
+
+    --va-outline: #140d07;
+    --va-shade: #07040a;
+    --va-shade-opacity: 0.32;
+    --va-highlight: #ffd9a0;
+    --va-wood: #8d5c34;
+    --va-wood-dark: #55341c;
+    --va-wood-light: #aa7444;
+    --va-plaster: #b8a583;
+    --va-plaster-shade: #8f7e63;
+    --va-stone: #7d786f;
+    --va-stone-dark: #5c574f;
+    --va-stone-light: #948e83;
+    --va-roof: #8a4331;
+    --va-roof-dark: #6a2f21;
+    --va-roof-light: #a35a44;
+    --va-slate: #3f566e;
+    --va-slate-dark: #2d4054;
+    --va-thatch: #a98238;
+    --va-thatch-dark: #7e5e22;
+    --va-window: #1f2a36;
+    --va-window-lit: #ffd27a;
+    --va-glow: #ff9d3a;
+    --va-smoke: #b9b0a2;
+    --va-cloud: #4a4f63;
+    --va-cloud-dark: #33374a;
+    --va-rain: #8fb4e6;
+    --va-vine: #5f9a38;
+    --va-vine-dark: #3f6e24;
+    --va-leaf: #7fb24a;
+    --va-flag: #1fb0b0;
+    --va-canvas: #c9bfa6;
+    --va-canvas-stripe: #a8503b;
+    --va-blueprint: #3f78b8;
+    --va-gold: #e0ad2c;
+
+    --va-skin-1: #d9aa82;
+    --va-skin-2: #b0764c;
+    --va-skin-3: #7a4a2b;
+    --va-hair-dark: #2f1d12;
+    --va-hair-grey: #aaa59d;
+    --va-hair-white: #d9d4c8;
+    --va-mask: #d9d2c2;
+    --va-c-purple: #8a66c4;
+    --va-c-purple-dark: #5e3f96;
+    --va-c-blue: #5688d0;
+    --va-c-teal: #3fa79e;
+    --va-c-magenta: #cf5fa8;
+    --va-c-copper: #cf8050;
+    --va-c-navy: #4165a0;
+    --va-c-steel: #8d98a5;
+    --va-c-steel-dark: #66717d;
+    --va-c-forest: #5e9650;
+    --va-c-cyan: #4cbcdb;
+    --va-c-slate: #7a8696;
+    --va-c-orange: #e8923a;
+    --va-c-red: #d9503f;
+    --va-c-olive: #a0a048;
+    --va-c-cream: #cfc4aa;
+    --va-c-moss: #3f6c44;
+    --va-c-brown: #94693f;
+    --va-c-sage: #7a9c77;
+    --va-c-burgundy: #a8435f;
+    --va-c-grey: #9a98a0;
+    --va-c-yellow: #e0b838;
+    --va-tex-opacity: 0.75;
+    --va-sheen-opacity: 0.22;
+    --va-sky-glow-opacity: 0.35;
+    --va-tex-dark: 1;
+    --va-tex-light: 0.35;
+    --va-vignette: 1;
+    --va-ao-opacity: 0.5;
+    --va-blush: #d9735f;
+    --va-flower-1: #cfc8b4;
+    --va-flower-2: #b97a92;
+    --va-flower-3: #c9a23a;
+  }
+}
+
+/* ==== Phase 3: day parts (values derived from the day-part palette tables in docs/design.md) ====
+ * The UI sets data-daypart="dawn|day|dusk|night" on the scene wrapper (NOT on <html>). Only scene tokens change;
+ * UI, paper, ink and signal tokens are untouched, so every UI contrast pair keeps passing. Light and dark each have four palettes.
+ * Light-theme night is a pale moonlit meadow on purpose: the light focus ring (#1c5db5) needs >= 3:1 on the ground.
+ * Dark-theme day is a dim daylight: the dark focus ring (#7db4ff) needs >= 3:1 on the ground. See docs/design.md. */
+@property --va-grass { syntax: '<color>'; inherits: true; initial-value: #9bbf5e; }
+@property --va-grass-2 { syntax: '<color>'; inherits: true; initial-value: #86ad4f; }
+@property --va-grass-3 { syntax: '<color>'; inherits: true; initial-value: #b3cf72; }
+@property --va-path { syntax: '<color>'; inherits: true; initial-value: #dcc08a; }
+@property --va-path-edge { syntax: '<color>'; inherits: true; initial-value: #bf9f68; }
+@property --va-plaza { syntax: '<color>'; inherits: true; initial-value: #dccfae; }
+@property --va-plaza-2 { syntax: '<color>'; inherits: true; initial-value: #c8b48d; }
+@property --va-water { syntax: '<color>'; inherits: true; initial-value: #6fb3c9; }
+@property --va-sky-glow { syntax: '<color>'; inherits: true; initial-value: #fff0c0; }
+@property --va-shadow { syntax: '<color>'; inherits: true; initial-value: #3a2a10; }
+@property --va-highlight { syntax: '<color>'; inherits: true; initial-value: #fff3d0; }
+@property --va-wood { syntax: '<color>'; inherits: true; initial-value: #a66f3e; }
+@property --va-wood-dark { syntax: '<color>'; inherits: true; initial-value: #6e4423; }
+@property --va-wood-light { syntax: '<color>'; inherits: true; initial-value: #c98d55; }
+@property --va-plaster { syntax: '<color>'; inherits: true; initial-value: #f0e0bd; }
+@property --va-plaster-shade { syntax: '<color>'; inherits: true; initial-value: #d8c397; }
+@property --va-stone { syntax: '<color>'; inherits: true; initial-value: #aaa294; }
+@property --va-stone-dark { syntax: '<color>'; inherits: true; initial-value: #7d766b; }
+@property --va-stone-light { syntax: '<color>'; inherits: true; initial-value: #c9c2b3; }
+@property --va-roof { syntax: '<color>'; inherits: true; initial-value: #b4553a; }
+@property --va-roof-dark { syntax: '<color>'; inherits: true; initial-value: #8a3d29; }
+@property --va-roof-light { syntax: '<color>'; inherits: true; initial-value: #cf7352; }
+@property --va-slate { syntax: '<color>'; inherits: true; initial-value: #55708c; }
+@property --va-slate-dark { syntax: '<color>'; inherits: true; initial-value: #3d5369; }
+@property --va-thatch { syntax: '<color>'; inherits: true; initial-value: #d6a94a; }
+@property --va-thatch-dark { syntax: '<color>'; inherits: true; initial-value: #a97d2c; }
+@property --va-window { syntax: '<color>'; inherits: true; initial-value: #46586b; }
+@property --va-smoke { syntax: '<color>'; inherits: true; initial-value: #ece5d9; }
+@property --va-cloud { syntax: '<color>'; inherits: true; initial-value: #5d6577; }
+@property --va-cloud-dark { syntax: '<color>'; inherits: true; initial-value: #3f4556; }
+@property --va-vine { syntax: '<color>'; inherits: true; initial-value: #4d7a2c; }
+@property --va-vine-dark { syntax: '<color>'; inherits: true; initial-value: #345a1d; }
+@property --va-leaf { syntax: '<color>'; inherits: true; initial-value: #6b9a3a; }
+@property --va-canvas { syntax: '<color>'; inherits: true; initial-value: #efe6d0; }
+@property --va-canvas-stripe { syntax: '<color>'; inherits: true; initial-value: #c9573f; }
+@property --va-shadow-opacity { syntax: '<number>'; inherits: true; initial-value: 0.22; }
+@property --va-shade-opacity { syntax: '<number>'; inherits: true; initial-value: 0.2; }
+@property --va-sky-glow-opacity { syntax: '<number>'; inherits: true; initial-value: 0.35; }
+@property --va-lamp { syntax: '<number>'; inherits: true; initial-value: 0; }
+:root { --va-sky-glow-opacity: 0.35; --va-lamp: 0; }
+
+/* light (default) */
+[data-daypart="dawn"] {
+  --va-grass: #b2c27a;
+  --va-grass-2: #9eb46c;
+  --va-grass-3: #c4cc8a;
+  --va-path: #e3bf9a;
+  --va-path-edge: #c79f78;
+  --va-plaza: #e2cdb6;
+  --va-plaza-2: #cdb398;
+  --va-water: #8fb0c8;
+  --va-sky-glow: #ffb0a0;
+  --va-highlight: #fde7c8;
+  --va-wood: #b2784e;
+  --va-wood-dark: #835437;
+  --va-wood-light: #cf9161;
+  --va-plaster: #f0d7b8;
+  --va-plaster-shade: #dcbf98;
+  --va-stone: #b5a396;
+  --va-stone-dark: #8f7e73;
+  --va-stone-light: #cfbeb0;
+  --va-roof: #be624a;
+  --va-roof-dark: #9a4e3c;
+  --va-roof-light: #d47b5e;
+  --va-slate: #6e798f;
+  --va-slate-dark: #5a6172;
+  --va-thatch: #daa958;
+  --va-thatch-dark: #b4843f;
+  --va-window: #616573;
+  --va-smoke: #eddbd0;
+  --va-cloud: #75707e;
+  --va-cloud-dark: #5b5562;
+  --va-vine: #67813f;
+  --va-vine-dark: #526632;
+  --va-leaf: #809c4a;
+  --va-canvas: #efdcc8;
+  --va-canvas-stripe: #cf644f;
+  --va-shadow: #3a2a30;
+  --va-shadow-opacity: 0.26;
+  --va-shade-opacity: 0.2;
+  --va-sky-glow-opacity: 0.3;
+  --va-lamp: 0;
+}
+[data-daypart="day"] {
+  --va-grass: #9bbf5e;
+  --va-grass-2: #86ad4f;
+  --va-grass-3: #b3cf72;
+  --va-path: #dcc08a;
+  --va-path-edge: #bf9f68;
+  --va-plaza: #dccfae;
+  --va-plaza-2: #c8b48d;
+  --va-water: #6fb3c9;
+  --va-sky-glow: #fff0c0;
+  --va-highlight: #fff3d0;
+  --va-wood: #a66f3e;
+  --va-wood-dark: #6e4423;
+  --va-wood-light: #c98d55;
+  --va-plaster: #f0e0bd;
+  --va-plaster-shade: #d8c397;
+  --va-stone: #aaa294;
+  --va-stone-dark: #7d766b;
+  --va-stone-light: #c9c2b3;
+  --va-roof: #b4553a;
+  --va-roof-dark: #8a3d29;
+  --va-roof-light: #cf7352;
+  --va-slate: #55708c;
+  --va-slate-dark: #3d5369;
+  --va-thatch: #d6a94a;
+  --va-thatch-dark: #a97d2c;
+  --va-window: #46586b;
+  --va-smoke: #ece5d9;
+  --va-cloud: #5d6577;
+  --va-cloud-dark: #3f4556;
+  --va-vine: #4d7a2c;
+  --va-vine-dark: #345a1d;
+  --va-leaf: #6b9a3a;
+  --va-canvas: #efe6d0;
+  --va-canvas-stripe: #c9573f;
+  --va-shadow: #3a2a10;
+  --va-shadow-opacity: 0.22;
+  --va-shade-opacity: 0.2;
+  --va-sky-glow-opacity: 0.35;
+  --va-lamp: 0;
+}
+[data-daypart="dusk"] {
+  --va-grass: #bcc370;
+  --va-grass-2: #abb261;
+  --va-grass-3: #cfcf84;
+  --va-path: #e9be84;
+  --va-path-edge: #cfa36b;
+  --va-plaza: #e5cfa9;
+  --va-plaza-2: #d0b690;
+  --va-water: #86a8b4;
+  --va-sky-glow: #ff9a4a;
+  --va-highlight: #eed2a9;
+  --va-wood: #ab6e3a;
+  --va-wood-dark: #814e26;
+  --va-wood-light: #c6864c;
+  --va-plaster: #e3c49a;
+  --va-plaster-shade: #d1ae7e;
+  --va-stone: #ae957b;
+  --va-stone-dark: #8d745d;
+  --va-stone-light: #c6ad92;
+  --va-roof: #b65b38;
+  --va-roof-dark: #96492b;
+  --va-roof-light: #ca724a;
+  --va-slate: #6e6f76;
+  --va-slate-dark: #5c5a5b;
+  --va-thatch: #cf9a44;
+  --va-thatch-dark: #ae7a2d;
+  --va-window: #635e5d;
+  --va-smoke: #e0c7af;
+  --va-cloud: #746766;
+  --va-cloud-dark: #5e4f4d;
+  --va-vine: #68772d;
+  --va-vine-dark: #565f22;
+  --va-leaf: #7f8f38;
+  --va-canvas: #e2c8a9;
+  --va-canvas-stripe: #c65d3b;
+  --va-shadow: #3a2410;
+  --va-shadow-opacity: 0.26;
+  --va-shade-opacity: 0.22;
+  --va-sky-glow-opacity: 0.35;
+  --va-lamp: 0.8;
+}
+[data-daypart="night"] {
+  --va-grass: #a4bdbc;
+  --va-grass-2: #91acae;
+  --va-grass-3: #b4ccc8;
+  --va-path: #d5ccba;
+  --va-path-edge: #bbae98;
+  --va-plaza: #d6d0ca;
+  --va-plaza-2: #c1b8b2;
+  --va-water: #8cb0cc;
+  --va-sky-glow: #cfe0ff;
+  --va-highlight: #8e9094;
+  --va-wood: #64514e;
+  --va-wood-dark: #493d42;
+  --va-wood-light: #745f59;
+  --va-plaster: #87878b;
+  --va-plaster-shade: #7b7979;
+  --va-stone: #666a77;
+  --va-stone-dark: #505464;
+  --va-stone-light: #747985;
+  --va-roof: #6a454c;
+  --va-roof-dark: #563a44;
+  --va-roof-light: #775358;
+  --va-slate: #3d5274;
+  --va-slate-dark: #324463;
+  --va-thatch: #7a6d54;
+  --va-thatch-dark: #655846;
+  --va-window: #364664;
+  --va-smoke: #858998;
+  --va-cloud: #414d69;
+  --va-cloud-dark: #333d5a;
+  --va-vine: #395646;
+  --va-vine-dark: #2d483e;
+  --va-leaf: #47664c;
+  --va-canvas: #868a94;
+  --va-canvas-stripe: #74464f;
+  --va-shadow: #1a2040;
+  --va-shadow-opacity: 0.14;
+  --va-shade-opacity: 0.26;
+  --va-sky-glow-opacity: 0.3;
+  --va-lamp: 1;
+}
+
+/* dark, explicit */
+:root[data-theme="dark"] [data-daypart="dawn"],
+:root[data-theme="dark"][data-daypart="dawn"] {
+  --va-grass: #314937;
+  --va-grass-2: #2c3f30;
+  --va-grass-3: #3e5542;
+  --va-path: #5f4d3c;
+  --va-path-edge: #493a2e;
+  --va-plaza: #554948;
+  --va-plaza-2: #473c3c;
+  --va-water: #35657f;
+  --va-sky-glow: #ff9a8a;
+  --va-highlight: #f4cb9d;
+  --va-wood: #926040;
+  --va-wood-dark: #623e2b;
+  --va-wood-light: #ab754e;
+  --va-plaster: #b79f84;
+  --va-plaster-shade: #947d68;
+  --va-stone: #847873;
+  --va-stone-dark: #685c57;
+  --va-stone-light: #988b84;
+  --va-roof: #8f4a3d;
+  --va-roof-dark: #74392f;
+  --va-roof-light: #a55e4e;
+  --va-slate: #4f5b72;
+  --va-slate-dark: #3f485b;
+  --va-thatch: #aa8143;
+  --va-thatch-dark: #856230;
+  --va-window: #333541;
+  --va-smoke: #b8a89e;
+  --va-cloud: #585568;
+  --va-cloud-dark: #454053;
+  --va-vine: #6a9543;
+  --va-vine-dark: #4f6f32;
+  --va-leaf: #86aa53;
+  --va-canvas: #c6b5a2;
+  --va-canvas-stripe: #a95646;
+  --va-shadow: #05030a;
+  --va-shadow-opacity: 0.3;
+  --va-shade-opacity: 0.3;
+  --va-sky-glow-opacity: 0.1;
+  --va-lamp: 0;
+}
+:root[data-theme="dark"] [data-daypart="day"],
+:root[data-theme="dark"][data-daypart="day"] {
+  --va-grass: #32492c;
+  --va-grass-2: #2c4128;
+  --va-grass-3: #3e522e;
+  --va-path: #5a492f;
+  --va-path-edge: #473828;
+  --va-plaza: #51473c;
+  --va-plaza-2: #433a30;
+  --va-water: #3a7089;
+  --va-sky-glow: #fff0c0;
+  --va-highlight: #ffefb1;
+  --va-wood: #a16d41;
+  --va-wood-dark: #684429;
+  --va-wood-light: #bf8752;
+  --va-plaster: #cdb993;
+  --va-plaster-shade: #a39172;
+  --va-stone: #918a7e;
+  --va-stone-dark: #6e695d;
+  --va-stone-light: #a9a193;
+  --va-roof: #9e543e;
+  --va-roof-dark: #7d3f2d;
+  --va-roof-light: #b86b52;
+  --va-slate: #50687d;
+  --va-slate-dark: #3e5062;
+  --va-thatch: #be9546;
+  --va-thatch-dark: #926f2e;
+  --va-window: #2f3a43;
+  --va-smoke: #cfc5b3;
+  --va-cloud: #5b6072;
+  --va-cloud-dark: #444858;
+  --va-vine: #72ad46;
+  --va-vine-dark: #508031;
+  --va-leaf: #93c758;
+  --va-canvas: #dfd4b8;
+  --va-canvas-stripe: #bd6149;
+  --va-shadow: #05030a;
+  --va-shadow-opacity: 0.3;
+  --va-shade-opacity: 0.26;
+  --va-sky-glow-opacity: 0.08;
+  --va-lamp: 0;
+}
+:root[data-theme="dark"] [data-daypart="dusk"],
+:root[data-theme="dark"][data-daypart="dusk"] {
+  --va-grass: #33482a;
+  --va-grass-2: #2d3d24;
+  --va-grass-3: #41542e;
+  --va-path: #644b30;
+  --va-path-edge: #4d3726;
+  --va-plaza: #554639;
+  --va-plaza-2: #48362f;
+  --va-water: #335c70;
+  --va-sky-glow: #ff9a4a;
+  --va-highlight: #eabe87;
+  --va-wood: #8f5a31;
+  --va-wood-dark: #633a1e;
+  --va-wood-light: #a76d3e;
+  --va-plaster: #b29570;
+  --va-plaster-shade: #917657;
+  --va-stone: #837160;
+  --va-stone-dark: #685747;
+  --va-stone-light: #958270;
+  --va-roof: #8d472f;
+  --va-roof-dark: #743722;
+  --va-roof-light: #a1593e;
+  --va-slate: #515660;
+  --va-slate-dark: #43444b;
+  --va-thatch: #a67934;
+  --va-thatch-dark: #845c23;
+  --va-window: #373333;
+  --va-smoke: #b39d89;
+  --va-cloud: #5a5057;
+  --va-cloud-dark: #473d42;
+  --va-vine: #6a8c34;
+  --va-vine-dark: #516924;
+  --va-leaf: #849f42;
+  --va-canvas: #bfa98c;
+  --va-canvas-stripe: #a55137;
+  --va-shadow: #05030a;
+  --va-shadow-opacity: 0.34;
+  --va-shade-opacity: 0.3;
+  --va-sky-glow-opacity: 0.1;
+  --va-lamp: 0.8;
+}
+:root[data-theme="dark"] [data-daypart="night"],
+:root[data-theme="dark"][data-daypart="night"] {
+  --va-grass: #233b36;
+  --va-grass-2: #1b302d;
+  --va-grass-3: #2d4741;
+  --va-path: #4a4437;
+  --va-path-edge: #38332a;
+  --va-plaza: #464550;
+  --va-plaza-2: #3a3a44;
+  --va-water: #223c58;
+  --va-sky-glow: #a8c0f0;
+  --va-highlight: #8a7f6f;
+  --va-wood: #514039;
+  --va-wood-dark: #342b2d;
+  --va-wood-light: #5f4c41;
+  --va-plaster: #666560;
+  --va-plaster-shade: #515150;
+  --va-stone: #484e57;
+  --va-stone-dark: #383e47;
+  --va-stone-light: #545960;
+  --va-roof: #4f3337;
+  --va-roof-dark: #3f292f;
+  --va-roof-light: #5b3f41;
+  --va-slate: #293d56;
+  --va-slate-dark: #203249;
+  --va-thatch: #5f533b;
+  --va-thatch-dark: #49412f;
+  --va-window: #19263a;
+  --va-smoke: #666a71;
+  --va-cloud: #2e3950;
+  --va-cloud-dark: #232d44;
+  --va-vine: #395f3b;
+  --va-vine-dark: #294931;
+  --va-leaf: #496b44;
+  --va-canvas: #6f7273;
+  --va-canvas-stripe: #5e3a3c;
+  --va-shadow: #05030a;
+  --va-shadow-opacity: 0.3;
+  --va-shade-opacity: 0.34;
+  --va-sky-glow-opacity: 0.1;
+  --va-lamp: 1;
+}
+
+/* dark, OS preference (no explicit light choice) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) [data-daypart="dawn"],
+  :root:not([data-theme="light"])[data-daypart="dawn"] {
+    --va-grass: #314937;
+    --va-grass-2: #2c3f30;
+    --va-grass-3: #3e5542;
+    --va-path: #5f4d3c;
+    --va-path-edge: #493a2e;
+    --va-plaza: #554948;
+    --va-plaza-2: #473c3c;
+    --va-water: #35657f;
+    --va-sky-glow: #ff9a8a;
+    --va-highlight: #f4cb9d;
+    --va-wood: #926040;
+    --va-wood-dark: #623e2b;
+    --va-wood-light: #ab754e;
+    --va-plaster: #b79f84;
+    --va-plaster-shade: #947d68;
+    --va-stone: #847873;
+    --va-stone-dark: #685c57;
+    --va-stone-light: #988b84;
+    --va-roof: #8f4a3d;
+    --va-roof-dark: #74392f;
+    --va-roof-light: #a55e4e;
+    --va-slate: #4f5b72;
+    --va-slate-dark: #3f485b;
+    --va-thatch: #aa8143;
+    --va-thatch-dark: #856230;
+    --va-window: #333541;
+    --va-smoke: #b8a89e;
+    --va-cloud: #585568;
+    --va-cloud-dark: #454053;
+    --va-vine: #6a9543;
+    --va-vine-dark: #4f6f32;
+    --va-leaf: #86aa53;
+    --va-canvas: #c6b5a2;
+    --va-canvas-stripe: #a95646;
+    --va-shadow: #05030a;
+    --va-shadow-opacity: 0.3;
+    --va-shade-opacity: 0.3;
+    --va-sky-glow-opacity: 0.1;
+    --va-lamp: 0;
+  }
+  :root:not([data-theme="light"]) [data-daypart="day"],
+  :root:not([data-theme="light"])[data-daypart="day"] {
+    --va-grass: #32492c;
+    --va-grass-2: #2c4128;
+    --va-grass-3: #3e522e;
+    --va-path: #5a492f;
+    --va-path-edge: #473828;
+    --va-plaza: #51473c;
+    --va-plaza-2: #433a30;
+    --va-water: #3a7089;
+    --va-sky-glow: #fff0c0;
+    --va-highlight: #ffefb1;
+    --va-wood: #a16d41;
+    --va-wood-dark: #684429;
+    --va-wood-light: #bf8752;
+    --va-plaster: #cdb993;
+    --va-plaster-shade: #a39172;
+    --va-stone: #918a7e;
+    --va-stone-dark: #6e695d;
+    --va-stone-light: #a9a193;
+    --va-roof: #9e543e;
+    --va-roof-dark: #7d3f2d;
+    --va-roof-light: #b86b52;
+    --va-slate: #50687d;
+    --va-slate-dark: #3e5062;
+    --va-thatch: #be9546;
+    --va-thatch-dark: #926f2e;
+    --va-window: #2f3a43;
+    --va-smoke: #cfc5b3;
+    --va-cloud: #5b6072;
+    --va-cloud-dark: #444858;
+    --va-vine: #72ad46;
+    --va-vine-dark: #508031;
+    --va-leaf: #93c758;
+    --va-canvas: #dfd4b8;
+    --va-canvas-stripe: #bd6149;
+    --va-shadow: #05030a;
+    --va-shadow-opacity: 0.3;
+    --va-shade-opacity: 0.26;
+    --va-sky-glow-opacity: 0.08;
+    --va-lamp: 0;
+  }
+  :root:not([data-theme="light"]) [data-daypart="dusk"],
+  :root:not([data-theme="light"])[data-daypart="dusk"] {
+    --va-grass: #33482a;
+    --va-grass-2: #2d3d24;
+    --va-grass-3: #41542e;
+    --va-path: #644b30;
+    --va-path-edge: #4d3726;
+    --va-plaza: #554639;
+    --va-plaza-2: #48362f;
+    --va-water: #335c70;
+    --va-sky-glow: #ff9a4a;
+    --va-highlight: #eabe87;
+    --va-wood: #8f5a31;
+    --va-wood-dark: #633a1e;
+    --va-wood-light: #a76d3e;
+    --va-plaster: #b29570;
+    --va-plaster-shade: #917657;
+    --va-stone: #837160;
+    --va-stone-dark: #685747;
+    --va-stone-light: #958270;
+    --va-roof: #8d472f;
+    --va-roof-dark: #743722;
+    --va-roof-light: #a1593e;
+    --va-slate: #515660;
+    --va-slate-dark: #43444b;
+    --va-thatch: #a67934;
+    --va-thatch-dark: #845c23;
+    --va-window: #373333;
+    --va-smoke: #b39d89;
+    --va-cloud: #5a5057;
+    --va-cloud-dark: #473d42;
+    --va-vine: #6a8c34;
+    --va-vine-dark: #516924;
+    --va-leaf: #849f42;
+    --va-canvas: #bfa98c;
+    --va-canvas-stripe: #a55137;
+    --va-shadow: #05030a;
+    --va-shadow-opacity: 0.34;
+    --va-shade-opacity: 0.3;
+    --va-sky-glow-opacity: 0.1;
+    --va-lamp: 0.8;
+  }
+  :root:not([data-theme="light"]) [data-daypart="night"],
+  :root:not([data-theme="light"])[data-daypart="night"] {
+    --va-grass: #233b36;
+    --va-grass-2: #1b302d;
+    --va-grass-3: #2d4741;
+    --va-path: #4a4437;
+    --va-path-edge: #38332a;
+    --va-plaza: #464550;
+    --va-plaza-2: #3a3a44;
+    --va-water: #223c58;
+    --va-sky-glow: #a8c0f0;
+    --va-highlight: #8a7f6f;
+    --va-wood: #514039;
+    --va-wood-dark: #342b2d;
+    --va-wood-light: #5f4c41;
+    --va-plaster: #666560;
+    --va-plaster-shade: #515150;
+    --va-stone: #484e57;
+    --va-stone-dark: #383e47;
+    --va-stone-light: #545960;
+    --va-roof: #4f3337;
+    --va-roof-dark: #3f292f;
+    --va-roof-light: #5b3f41;
+    --va-slate: #293d56;
+    --va-slate-dark: #203249;
+    --va-thatch: #5f533b;
+    --va-thatch-dark: #49412f;
+    --va-window: #19263a;
+    --va-smoke: #666a71;
+    --va-cloud: #2e3950;
+    --va-cloud-dark: #232d44;
+    --va-vine: #395f3b;
+    --va-vine-dark: #294931;
+    --va-leaf: #496b44;
+    --va-canvas: #6f7273;
+    --va-canvas-stripe: #5e3a3c;
+    --va-shadow: #05030a;
+    --va-shadow-opacity: 0.3;
+    --va-shade-opacity: 0.34;
+    --va-sky-glow-opacity: 0.1;
+    --va-lamp: 1;
+  }
+}
+
+/* smooth day-part change without JS: transition on the element that carries data-daypart */
+@media (prefers-reduced-motion: no-preference) {
+  [data-daypart].va-daypart-ready {
+    transition-property: --va-grass, --va-grass-2, --va-grass-3, --va-path, --va-path-edge, --va-plaza, --va-plaza-2, --va-water, --va-sky-glow, --va-shadow, --va-highlight, --va-wood, --va-wood-dark, --va-wood-light, --va-plaster, --va-plaster-shade, --va-stone, --va-stone-dark, --va-stone-light, --va-roof, --va-roof-dark, --va-roof-light, --va-slate, --va-slate-dark, --va-thatch, --va-thatch-dark, --va-window, --va-smoke, --va-cloud, --va-cloud-dark, --va-vine, --va-vine-dark, --va-leaf, --va-canvas, --va-canvas-stripe, --va-shadow-opacity, --va-shade-opacity, --va-sky-glow-opacity, --va-lamp;
+    transition-duration: 2.5s;
+    transition-timing-function: ease-in-out;
+  }
+  [data-motion="reduce"] [data-daypart].va-daypart-ready,
+  [data-daypart].va-daypart-ready[data-motion="reduce"] {
+    transition: none;
+  }
+}

@@ -1,0 +1,28 @@
+/** Art barrel: everything the UI may import from src/art. */
+export type { BuildingAnchors, BuildingArtProps, CharacterArtProps, DayPart, DayPartIconProps, IconProps, Pose, RingBox, SignalIconKind, SpecialistPlace, TroupeArtProps } from './contract';
+export { Character } from './characters/Character';
+export { Troupe } from './characters/Troupe';
+export { ClassIcon, type ClassIconProps } from './icons/ClassIcon';
+export { SignalIcon, type SignalIconProps } from './icons/SignalIcon';
+export { DayPartIcon } from './icons/DayPartIcon';
+export { HearthLodge, HEARTH_LODGE_ANCHORS } from './buildings/HearthLodge';
+export { CartographersWorkshop, WORKSHOP_ANCHORS } from './buildings/CartographersWorkshop';
+export { TownHall, TOWN_HALL_ANCHORS, TOWN_HALL_NOTICE_RECT, TOWN_HALL_STEP_SPOTS, type Rect } from './buildings/TownHall';
+export { Gatehouse, GATEHOUSE_ANCHORS, GATEHOUSE_SPOTS } from './buildings/Gatehouse';
+export { Tavern, TAVERN_ANCHORS, TAVERN_SIT_SPOTS, TAVERN_STAND_SPOTS } from './buildings/Tavern';
+export { QuestBoard, QUEST_BOARD_ANCHORS, QUEST_BOARD_NOTE_RECT, QUEST_BOARD_SPOTS } from './buildings/QuestBoard';
+export { ChronicleScroll, CHRONICLE_ANCHORS, CHRONICLE_SPOTS, CHRONICLE_TEXT_RECT } from './buildings/ChronicleScroll';
+export { TallySign, TALLY_ANCHORS, TALLY_TEXT_RECT } from './buildings/TallySign';
+export { Plot, PLOT_ANCHORS, SignPost, type PlotProps } from './buildings/Plot';
+export { Ground, Tree } from './buildings/Ground';
+export { SCENE, gridToScene, LANTERN_SPOTS, PIPELINE_ORDER, PIPELINE_STOPS } from './layout';
+export { Lantern, LitPane, LAMP_STYLE } from './buildings/Lamp';
+export { PipelineCart, PipelineTrack } from './buildings/Pipeline';
+export { BuildBurst, Fireworks } from './buildings/Overlays';
+export { PATH_EDGES, PATH_NODES, pathNetwork, routeAlongPaths, type PathNetwork, type PathPt, type ProjectSpot } from './network';
+export { Chapel, CHAPEL_ANCHORS, CHAPEL_RING, CHAPEL_SPOTS } from './specialists/Chapel';
+export { VillageWell, WELL_ANCHORS, WELL_RING, WELL_SPOTS } from './specialists/VillageWell';
+export { HerbalistHut, HERBALIST_ANCHORS, HERBALIST_RING, HERBALIST_SPOTS } from './specialists/HerbalistHut';
+export { Schoolhouse, SCHOOLHOUSE_ANCHORS, SCHOOLHOUSE_RING, SCHOOLHOUSE_SPOTS } from './specialists/Schoolhouse';
+export { SPECIALIST_ANCHORS, SPECIALIST_RINGS, SPECIALIST_ORIGINS, SPECIALIST_PLACES } from './specialists/specialists';
+export { ArtDefs, ART_DEF_IDS } from './ArtDefs';

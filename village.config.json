@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "agentsDir": "~/.claude/agents",
+  "timezone": "Europe/Amsterdam",
+  "xpEnabled": false,
+  "projects": [
+    {
+      "id": "flowbro",
+      "name": "FlowBro",
+      "path": null,
+      "fixturePath": "fixtures/flowbro",
+      "building": "hearth-lodge",
+      "position": { "x": 3, "y": 2 }
+    },
+    {
+      "id": "agent-village",
+      "name": "Agent Village",
+      "path": "~/src/agent-village",
+      "building": "cartographers-workshop",
+      "position": { "x": -3, "y": 2 }
+    }
+  ]
+}

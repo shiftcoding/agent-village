@@ -1,0 +1,117 @@
+/*
+ * Agent Village motion (v1). Owner: ui-designer.
+ * Rules:
+ *  - Every animation lives inside prefers-reduced-motion: no-preference, so reduced motion = still poses.
+ *  - Manual override: any ancestor with [data-motion="reduce"] switches all art animation off.
+ *  - Transforms rotate/scale around the element's local origin (0,0): art components draw tools,
+ *    flags and smoke puffs around (0,0) inside a translated <g>, so no transform-box tricks are needed.
+ *  - Walk: legs swing about the hip, alternating, plus a small body bob; still stance under reduced motion.
+ *  - Build burst and fireworks run ONCE (iteration-count 1). In still mode the burst stays as a static sparkle.
+ */
+/* Smoke has two renderings: animated puffs (motion) and a static stack of puffs (still). */
+.va-smoke-anim { display: none; }
+/* The build burst is motion-only: no output at all under reduced motion (the UI cross-fades the stages instead). */
+.va-burst { display: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .va-smoke-anim { display: inline; }
+  .va-smoke-static { display: none; }
+  [data-motion="reduce"] .va-smoke-anim { display: none; }
+  .va-burst { display: inline; }
+  [data-motion="reduce"] .va-burst { display: none; }
+  [data-motion="reduce"] .va-smoke-static { display: inline; }
+
+  /* ---- idle loops ---- */
+  .va-breathe { animation: va-breathe 4.2s ease-in-out infinite; }
+  .va-glow-pulse { animation: va-glow-pulse 1.6s ease-in-out infinite; }
+  .va-zzz { animation: va-zzz 3s ease-in-out infinite; }
+  .va-zzz-2 { animation-delay: 1s; }
+  .va-zzz-3 { animation-delay: 2s; }
+
+  /* ---- class work animations (pose 'work' only) ---- */
+  .va-pose-work .va-w-swing { animation: va-swing 0.9s ease-in-out infinite alternate; }
+  .va-pose-work .va-w-scribble { animation: va-scribble 0.55s ease-in-out infinite alternate; }
+  .va-pose-work .va-w-aim { animation: va-aim 1.8s ease-in-out infinite; }
+  .va-pose-work .va-w-wave { animation: va-wave 1.4s ease-in-out infinite alternate; }
+  .va-pose-work .va-w-bob { animation: va-bob 0.9s ease-in-out infinite alternate; }
+  .va-pose-work .va-w-paint { animation: va-paint 1.2s ease-in-out infinite; }
+  .va-pose-work .va-w-toot { animation: va-toot 0.8s ease-in-out infinite; }
+  .va-pose-work .va-w-tick { animation: va-tick 1s steps(4, end) infinite; }
+
+  /* ---- walking (pose 'walk'; the class exists only on walking figures) ---- */
+  .va-pose-walk .va-leg-a { animation: va-leg 0.7s ease-in-out infinite alternate; }
+  .va-pose-walk .va-leg-b { animation: va-leg 0.7s ease-in-out infinite alternate-reverse; }
+  .va-walk-bob { animation: va-walk-bob 0.35s ease-in-out infinite alternate; }
+
+  /* ---- build burst: dust and wood chips, ONCE (growth-stage change) ---- */
+  .va-burst-puff { animation: va-burst-puff 1.2s ease-out 1 both; }
+  .va-burst-chip { animation: va-burst-chip 1.1s cubic-bezier(0.2, 0.7, 0.4, 1) 1 both; }
+
+  /* ---- buildings and overlays ---- */
+  .va-smoke-puff { animation: va-smoke 4.5s ease-out infinite; opacity: 0; }
+  .va-flag-wave { animation: va-flag 2.4s ease-in-out infinite alternate; }
+  .va-banner-wave { animation: va-flag 3s ease-in-out infinite alternate; }
+  .va-window-lit { animation: va-window 5s ease-in-out infinite; }
+  .va-cloud-drift { animation: va-cloud 9s ease-in-out infinite alternate; }
+  .va-rain { animation: va-rain 0.9s linear infinite; }
+  .va-lightning { animation: va-lightning 4s steps(1, end) infinite; }
+  .va-vine-sway { animation: va-sway 6s ease-in-out infinite alternate; }
+  .va-fw { animation: va-firework 2.4s ease-out 1 both; }
+  .va-fw-2 { animation-delay: 0.6s; }
+  .va-fw-3 { animation-delay: 1.2s; }
+  .va-pennant { animation: va-flag 2s ease-in-out infinite alternate; }
+
+  /* ---- manual override: always last ---- */
+  [data-motion="reduce"] .va-breathe,
+  [data-motion="reduce"] .va-glow-pulse,
+  [data-motion="reduce"] .va-zzz,
+  [data-motion="reduce"] .va-w-swing,
+  [data-motion="reduce"] .va-w-scribble,
+  [data-motion="reduce"] .va-w-aim,
+  [data-motion="reduce"] .va-w-wave,
+  [data-motion="reduce"] .va-w-bob,
+  [data-motion="reduce"] .va-w-paint,
+  [data-motion="reduce"] .va-w-toot,
+  [data-motion="reduce"] .va-w-tick,
+  [data-motion="reduce"] .va-smoke-puff,
+  [data-motion="reduce"] .va-flag-wave,
+  [data-motion="reduce"] .va-banner-wave,
+  [data-motion="reduce"] .va-window-lit,
+  [data-motion="reduce"] .va-cloud-drift,
+  [data-motion="reduce"] .va-rain,
+  [data-motion="reduce"] .va-lightning,
+  [data-motion="reduce"] .va-vine-sway,
+  [data-motion="reduce"] .va-fw,
+  [data-motion="reduce"] .va-pennant,
+  [data-motion="reduce"] .va-leg-a,
+  [data-motion="reduce"] .va-leg-b,
+  [data-motion="reduce"] .va-walk-bob,
+  [data-motion="reduce"] .va-burst-puff,
+  [data-motion="reduce"] .va-burst-chip {
+    animation: none !important;
+  }
+
+  @keyframes va-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.015, 1.03); } }
+  @keyframes va-glow-pulse { 0%, 100% { opacity: 0.75; transform: scale(1); } 50% { opacity: 1; transform: scale(1.12); } }
+  @keyframes va-zzz { 0% { opacity: 0; transform: translate(0, 4px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(6px, -10px); } }
+  @keyframes va-swing { from { transform: rotate(-38deg); } to { transform: rotate(18deg); } }
+  @keyframes va-scribble { from { transform: translate(-2px, 0) rotate(-4deg); } to { transform: translate(2px, 1px) rotate(4deg); } }
+  @keyframes va-aim { 0%, 100% { transform: translate(0, 0); } 55% { transform: translate(-3px, 0) scale(1.04); } 62% { transform: translate(2px, 0); } }
+  @keyframes va-wave { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+  @keyframes va-bob { from { transform: translateY(-1px); } to { transform: translateY(2px); } }
+  @keyframes va-paint { 0% { transform: translate(0, 0); } 25% { transform: translate(3px, -3px); } 50% { transform: translate(6px, 0); } 75% { transform: translate(3px, 3px); } 100% { transform: translate(0, 0); } }
+  @keyframes va-toot { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+  @keyframes va-tick { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes va-smoke { 0% { opacity: 0; transform: translate(0, 0) scale(0.5); } 15% { opacity: 0.85; } 100% { opacity: 0; transform: translate(14px, -52px) scale(1.6); } }
+  @keyframes va-flag { from { transform: skewY(-5deg) scaleX(1); } to { transform: skewY(5deg) scaleX(0.92); } }
+  @keyframes va-window { 0%, 100% { opacity: 1; } 50% { opacity: 0.82; } }
+  @keyframes va-cloud { from { transform: translateX(-6px); } to { transform: translateX(6px); } }
+  @keyframes va-rain { from { transform: translateY(-6px); opacity: 0.2; } 50% { opacity: 1; } to { transform: translateY(10px); opacity: 0.2; } }
+  @keyframes va-lightning { 0%, 88%, 94%, 100% { opacity: 0; } 90%, 96% { opacity: 1; } }
+  @keyframes va-sway { from { transform: rotate(-1.5deg); } to { transform: rotate(1.5deg); } }
+  @keyframes va-leg { from { transform: rotate(-26deg); } to { transform: rotate(26deg); } }
+  @keyframes va-walk-bob { from { transform: translateY(0); } to { transform: translateY(-2px); } }
+  @keyframes va-burst-puff { 0% { opacity: 0; transform: translate(0, 0) scale(0.3); } 20% { opacity: 0.9; } 100% { opacity: 0; transform: translate(var(--dx, 0px), var(--dy, -12px)) scale(1.5); } }
+  @keyframes va-burst-chip { 0% { opacity: 0; transform: translate(0, 0) rotate(0deg); } 15% { opacity: 1; } 55% { opacity: 1; transform: translate(var(--dx, 0px), var(--dy, -30px)) rotate(var(--rot, 120deg)); } 100% { opacity: 0; transform: translate(calc(var(--dx, 0px) * 1.3), calc(var(--dy, -30px) + 26px)) rotate(calc(var(--rot, 120deg) * 1.6)); } }
+  @keyframes va-firework { 0% { opacity: 1; transform: scale(0.1); } 60% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.15); } }
+}
