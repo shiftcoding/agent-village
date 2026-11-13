@@ -1,5 +1,5 @@
 import type { BuildingAnchors, RingBox } from '../contract';
-import { Box, C, iso } from '../buildings/iso';
+import { Box, C, Scaled, iso, scalePt, scaleRing } from '../buildings/iso';
 import { BellTurret, GabledHouse, thin } from './House';
 
 const A = 30;
@@ -13,14 +13,18 @@ export const CHAPEL_SPOTS: Array<{ x: number; y: number }> = [
   ...[-15, 15].map((a) => iso(0, 0, a, D + 34)),
 ];
 
-export const CHAPEL_ANCHORS: BuildingAnchors = {
+/** Scale origin: the ground at the foot of the front wall (T39 round 2: drawn 1.25x). */
+const O = iso(0, 0, 0, D);
+const K = 1.25;
+const RAW_ANCHORS: BuildingAnchors = {
   door: iso(0, 0, 0, D + 4),
   roof: iso(0, 0, 0, 0, H + RISE + 34),
   workSpots: CHAPEL_SPOTS,
 };
+export const CHAPEL_ANCHORS: BuildingAnchors = { door: scalePt(RAW_ANCHORS.door, O, K), roof: scalePt(RAW_ANCHORS.roof, O, K), workSpots: RAW_ANCHORS.workSpots };
 
 /** Focus ring box in local coords (bell turret to the steps, with the characters in front). */
-export const CHAPEL_RING: RingBox = { x: -96, y: -172, w: 176, h: 296 };
+export const CHAPEL_RING: RingBox = scaleRing({ x: -96, y: -143, w: 176, h: 267 }, O, K, 100);
 
 function Lancet({ x }: { x: number }): JSX.Element {
   return (
@@ -54,7 +58,7 @@ function SunWindow({ x, y, r }: { x: number; y: number; r: number }): JSX.Elemen
  * (gold bell), an arched door and a gold sun window above it. Footprint centre at (0,0); about 135 wide, 150 tall.
  * No smoke and no lit windows (those mean an "active project"); it is a place, not a project.
  */
-export function Chapel(): JSX.Element {
+function ChapelArt(): JSX.Element {
   return (
     <g>
       <GabledHouse
@@ -97,5 +101,13 @@ export function Chapel(): JSX.Element {
         }
       />
     </g>
+  );
+}
+
+export function Chapel(): JSX.Element {
+  return (
+    <Scaled k={K} o={O}>
+      <ChapelArt />
+    </Scaled>
   );
 }

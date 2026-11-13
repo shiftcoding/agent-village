@@ -1,5 +1,5 @@
 import type { BuildingAnchors, RingBox } from '../contract';
-import { Box, C, GroundShadow, LINE, SHADE_OPACITY, U, iso, pts } from '../buildings/iso';
+import { Box, C, GroundShadow, LINE, SHADE_OPACITY, U, iso, pts, Scaled, scalePt, scaleRing } from '../buildings/iso';
 import { thin } from './House';
 
 const PA = 27; // post distance along a
@@ -13,14 +13,18 @@ export const WELL_SPOTS: Array<{ x: number; y: number }> = [
   ...[-14, 14].map((a) => iso(0, 0, a, 58)),
 ];
 
-export const WELL_ANCHORS: BuildingAnchors = {
+/** Scale origin: the ground at the foot of the front wall (T39 round 2: drawn 1.2x). */
+const O = { x: 0, y: 0 };
+const K = 1.2;
+const RAW_ANCHORS: BuildingAnchors = {
   door: iso(0, 0, 0, 34),
   roof: iso(0, 0, 0, 0, RZ + RISE + 6),
   workSpots: WELL_SPOTS,
 };
+export const WELL_ANCHORS: BuildingAnchors = { door: scalePt(RAW_ANCHORS.door, O, K), roof: scalePt(RAW_ANCHORS.roof, O, K), workSpots: RAW_ANCHORS.workSpots };
 
 /** Focus ring box in local coords. */
-export const WELL_RING: RingBox = { x: -100, y: -112, w: 190, h: 218 };
+export const WELL_RING: RingBox = scaleRing({ x: -100, y: -112, w: 178, h: 218 }, O, K);
 
 function Post({ a, front }: { a: number; front?: boolean }): JSX.Element {
   const f = iso(0, 0, a, 0);
@@ -38,7 +42,7 @@ function Post({ a, front }: { a: number; front?: boolean }): JSX.Element {
  * Village well (relationship-advisor, the elder counselor): a round stone well with a wooden roof on two posts,
  * a windlass with a hanging bucket and a bench beside it. Footprint centre (0,0); about 150 wide, 105 tall.
  */
-export function VillageWell(): JSX.Element {
+function VillageWellArt(): JSX.Element {
   const w0 = iso(0, 0, -PA, 0, 44);
   const w1 = iso(0, 0, PA, 0, 44);
   const rope = iso(0, 0, 0, 0, 44);
@@ -49,7 +53,7 @@ export function VillageWell(): JSX.Element {
   const Rt = iso(0, 0, PA + 5, -RD, RZ);
   return (
     <g>
-      <GroundShadow cx={4} cy={2} rx={76} ry={26} />
+      <GroundShadow cx={4} cy={2} rx={76} ry={26} cast={false} />
       <Post a={-PA} />
       {/* stone ring */}
       <path d="M-25,-22 L-25,0 A25,12.5 0 0 0 25,0 L25,-22 Z" fill={C('stone-light')} {...LINE} />
@@ -94,5 +98,13 @@ export function VillageWell(): JSX.Element {
       ))}
       <Box cx={iso(0, 0, 50, 0).x} cy={iso(0, 0, 50, 0).y} A={3.8} D={15} h={3.2} z={8} left={C('wood-light')} right={C('wood')} top={C('wood-light')} />
     </g>
+  );
+}
+
+export function VillageWell(): JSX.Element {
+  return (
+    <Scaled k={K} o={O}>
+      <VillageWellArt />
+    </Scaled>
   );
 }

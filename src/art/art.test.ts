@@ -1,7 +1,12 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { GATEHOUSE_ANCHORS, GATEHOUSE_RING } from './buildings/Gatehouse';
+import { HEAVY, LINE, BUILDING_SCALE, iso, scalePt } from './buildings/iso';
+import { BUILDING_RINGS, SPECS, anchorsFor, scaleOrigin, type BuildingVariant } from './buildings/ProjectBuilding';
+import { TAVERN_ANCHORS, TAVERN_RING } from './buildings/Tavern';
 import { ART_DEF_IDS } from './ArtDefs';
+import { DRESS_PATH_CLEARANCE, groundDressing, keepOutAreas } from './buildings/Dressing';
 import { LANTERN_SPOTS, PIPELINE_STOPS, SCENE, gridToScene } from './layout';
 import { PATH_EDGES, PATH_NODES, pathNetwork, routeAlongPaths } from './network';
 import { SPECIALIST_ANCHORS, SPECIALIST_ORIGINS, SPECIALIST_PLACES, SPECIALIST_RINGS } from './specialists/specialists';
@@ -149,7 +154,7 @@ describe('shared defs', () => {
     for (const f of walk(artDir)) expect(readFileSync(f, 'utf8'), f).not.toContain('useId');
   });
   it('defines the painted-layer tokens in light, dark and the OS dark block', () => {
-    for (const k of ['tex-opacity', 'sheen-opacity', 'ao-opacity', 'tex-dark', 'tex-light', 'vignette', 'blush', 'flower-1']) {
+    for (const k of ['tex-opacity', 'sheen-opacity', 'ao-opacity', 'tex-dark', 'tex-light', 'vignette', 'blush', 'flower-1', 'rim-opacity', 'foliage-deep']) {
       expect(blockAfter(':root {'), k).toContain(`--va-${k}:`);
       expect(blockAfter(':root[data-theme="dark"] {'), k).toContain(`--va-${k}:`);
       expect(css.slice(css.indexOf('@media (prefers-color-scheme: dark)'))).toContain(`--va-${k}:`);
@@ -190,4 +195,89 @@ describe('textured ground keeps the focus ring at 3:1 (area-averaged, polarity p
       });
     }
   }
+});
+
+/* ---- art pass 2 (T39): ground dressing stays out of the way of paths, buildings and the card ---- */
+describe('ground dressing', () => {
+  const spots = [gridToScene(3, 2), gridToScene(-3, 2)];
+  const net = pathNetwork(spots.map((s, i) => ({ id: `p${i}`, ...s })));
+  const segs = net.edges.flatMap(([a, b]) => (net.nodes[a] && net.nodes[b] ? [{ a: net.nodes[a], b: net.nodes[b] }] : []));
+  const dist = (px: number, py: number, s: { a: { x: number; y: number }; b: { x: number; y: number } }): number => {
+    const dx = s.b.x - s.a.x;
+    const dy = s.b.y - s.a.y;
+    const k = Math.max(0, Math.min(1, ((px - s.a.x) * dx + (py - s.a.y) * dy) / (dx * dx + dy * dy || 1)));
+    return Math.hypot(px - (s.a.x + k * dx), py - (s.a.y + k * dy));
+  };
+  const items = groundDressing(spots);
+  it('places a modest number of pieces (framing, not clutter)', () => {
+    expect(items.length).toBe(9);
+  });
+  it('is deterministic', () => {
+    expect(groundDressing(spots)).toEqual(items);
+  });
+  it('keeps every piece (and both ends of every run) clear of paths, the plaza and all building keep-outs', () => {
+    const keep = keepOutAreas(spots);
+    const p = SCENE.plaza;
+    for (const d of items) {
+      const ends = d.len ? [0, 0.5, 1].map((t) => ({ x: d.x + t * d.len!, y: d.y + (t * d.len!) / 2 })) : [{ x: d.x, y: d.y }];
+      for (const e of ends) {
+        for (const s of segs) expect(dist(e.x, e.y, s), `${d.kind} ${Math.round(e.x)},${Math.round(e.y)} vs path`).toBeGreaterThanOrEqual(DRESS_PATH_CLEARANCE);
+        expect(Math.abs(e.x - p.x) / (p.rx + 40) + Math.abs(e.y - p.y) / (p.ry + 20), 'plaza').toBeGreaterThanOrEqual(1);
+        for (const k of keep) expect(Math.hypot(e.x - k.x, (e.y - k.y) * 1.25), `${d.kind} keep-out`).toBeGreaterThanOrEqual(k.r);
+        expect(e.x).toBeGreaterThan(0);
+        expect(e.x).toBeLessThan(SCENE.width);
+        expect(e.y).toBeLessThan(SCENE.height);
+      }
+    }
+  });
+});
+
+describe('shared outline weights (storybook hierarchy 2.3 / 1.4 / 0.95)', () => {
+  it('keeps the heavy silhouette line heavier than the main line', () => {
+    expect(HEAVY.strokeWidth).toBeGreaterThan(LINE.strokeWidth);
+    expect(LINE.strokeWidth).toBeGreaterThan(0.95);
+  });
+});
+
+/* ---- focus rings hug the art: contain the roof anchor (and the needs-you banner), little slack above, inside the scene, no overlaps ---- */
+describe('place focus rings', () => {
+  type R = { x: number; y: number; w: number; h: number };
+  const lodgeAt = gridToScene(3, 2);
+  const workAt = gridToScene(-3, 2);
+  /** Top of the needs-you banner (pole tip) on a project building, in local coords: it sits on the ridge and scales with the building. */
+  const bannerTop = (v: BuildingVariant): number => {
+    const o = scaleOrigin(v);
+    const roof = anchorsFor(v).roof;
+    const ridgeZ = -(o.y + (roof.y - o.y) / BUILDING_SCALE);
+    const base = iso(0, 0, -SPECS[v].A + 6, 0, ridgeZ - 4);
+    return scalePt({ x: base.x, y: base.y - 62 }, o).y;
+  };
+  const places: Array<{ name: string; at: { x: number; y: number }; ring: R; top: number; slack: number }> = [
+    { name: 'hearth-lodge', at: lodgeAt, ring: BUILDING_RINGS['hearth-lodge'], top: Math.min(anchorsFor('lodge').roof.y, bannerTop('lodge')), slack: 40 },
+    { name: 'cartographers-workshop', at: workAt, ring: BUILDING_RINGS['cartographers-workshop'], top: Math.min(anchorsFor('workshop').roof.y, bannerTop('workshop')), slack: 40 },
+    // tavern and gatehouse: chimney, sign and battlements stand above the roof anchor
+    { name: 'tavern', at: SCENE.tavern, ring: TAVERN_RING, top: TAVERN_ANCHORS.roof.y, slack: 50 },
+    { name: 'gatehouse', at: SCENE.gatehouse, ring: GATEHOUSE_RING, top: GATEHOUSE_ANCHORS.roof.y, slack: 40 },
+    ...SPECIALIST_PLACES.map((p) => ({ name: p, at: SPECIALIST_ORIGINS[p], ring: SPECIALIST_RINGS[p], top: SPECIALIST_ANCHORS[p].roof.y, slack: 50 })),
+  ];
+  it('contains the roof anchor (and banner) with limited slack above it, inside the scene', () => {
+    for (const p of places) {
+      expect(p.ring.y, `${p.name} contains roof`).toBeLessThanOrEqual(p.top);
+      expect(p.top - p.ring.y, `${p.name} slack above`).toBeLessThanOrEqual(p.slack);
+      expect(p.at.x + p.ring.x, `${p.name} left`).toBeGreaterThanOrEqual(0);
+      expect(p.at.x + p.ring.x + p.ring.w, `${p.name} right`).toBeLessThanOrEqual(SCENE.width);
+      expect(p.at.y + p.ring.y, `${p.name} top`).toBeGreaterThanOrEqual(0);
+    }
+  });
+  it('do not overlap each other (town hall excepted)', () => {
+    const abs = places.map((p) => ({ name: p.name, x: p.at.x + p.ring.x, y: p.at.y + p.ring.y, w: p.ring.w, h: p.ring.h }));
+    for (let i = 0; i < abs.length; i++) {
+      for (let j = i + 1; j < abs.length; j++) {
+        const a = abs[i]!;
+        const b = abs[j]!;
+        const overlap = a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+        expect(overlap, `${a.name} vs ${b.name}`).toBe(false);
+      }
+    }
+  });
 });

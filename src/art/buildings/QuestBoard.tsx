@@ -1,8 +1,8 @@
 import type { BuildingAnchors } from '../contract';
-import { C, FlatFx, GroundShadow, LINE, U } from './iso';
+import { C, CastShadow, FlatFx, GroundShadow, HEAVY, LINE, U } from './iso';
 import type { Rect } from './TownHall';
 
-const thin = { ...LINE, strokeWidth: 0.9 } as const;
+const thin = { ...LINE, strokeWidth: 0.95 } as const;
 
 /** Area (local coords, anchor = bottom centre of the posts) where the UI places parchment notes. */
 export const QUEST_BOARD_NOTE_RECT: Rect = { x: -84, y: -122, width: 168, height: 80 };
@@ -29,17 +29,18 @@ export function QuestBoard(): JSX.Element {
   const n = QUEST_BOARD_NOTE_RECT;
   return (
     <g>
-      <GroundShadow cx={10} cy={6} rx={110} ry={13} />
+      <CastShadow foot={[{ x: -106, y: 3 }, { x: 106, y: 3 }, { x: 106, y: -5 }, { x: -106, y: -5 }]} h={100} />
+      <GroundShadow cx={10} cy={6} rx={110} ry={13} cast={false} />
       <rect x={-100} y={-128} width={9} height={128} fill={C('wood-dark')} {...thin} />
       <rect x={91} y={-128} width={9} height={128} fill={C('wood-dark')} {...thin} />
       <FlatFx x={-100} y={-128} w={9} h={128} tex="planks" />
       <FlatFx x={91} y={-128} w={9} h={128} tex="planks" dim />
-      <rect x={n.x - 8} y={n.y - 8} width={n.width + 16} height={n.height + 16} rx={3} fill={C('wood-light')} {...LINE} />
+      <rect x={n.x - 8} y={n.y - 8} width={n.width + 16} height={n.height + 16} rx={3} fill={C('wood-light')} {...HEAVY} />
       <rect x={n.x} y={n.y} width={n.width} height={n.height} fill={C('wood')} {...thin} />
       <rect x={n.x} y={n.y} width={n.width} height={n.height} fill={U('p-planks')} />
       <rect x={n.x} y={n.y} width={n.width} height={n.height} fill={U('g-ao-top')} />
       <path d={`M${n.x},${n.y + 26} L${n.x + n.width},${n.y + 26} M${n.x},${n.y + 52} L${n.x + n.width},${n.y + 52}`} stroke={C('wood-dark')} strokeOpacity={0.4} strokeWidth={1} />
-      <polygon points="-112,-130 112,-130 98,-150 -98,-150" fill={C('roof')} {...LINE} />
+      <polygon points="-112,-130 112,-130 98,-150 -98,-150" fill={C('roof')} {...HEAVY} />
       <polygon points="-112,-130 112,-130 98,-150 -98,-150" fill={U('g-lit')} />
       <polygon points="-112,-130 112,-130 112,-124 -112,-124" fill={C('roof-dark')} {...thin} />
       <rect x={-48} y={-176} width={96} height={22} rx={3} fill={C('sign')} {...LINE} />

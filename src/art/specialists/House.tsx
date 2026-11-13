@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Box, C, GroundShadow, LINE, RoofFx, SHADE_OPACITY, U, iso, leftFaceTf, pts, rightFaceTf, type FaceTex, type Pt } from '../buildings/iso';
 
-export const thin = { ...LINE, strokeWidth: 0.9 } as const;
+export const thin = { ...LINE, strokeWidth: 0.95 } as const;
 
 export interface HouseProps {
   /** Half extents of the footprint along a (long, lit face) and b. */
@@ -56,8 +56,8 @@ export function GabledHouse(p: HouseProps): JSX.Element {
   const nTicks = Math.max(4, Math.round(A / 5));
   return (
     <g>
-      <GroundShadow rx={A + D + 14} ry={(A + D) / 2 + 10} />
-      <Box A={A} D={D} h={H} left={C(p.wallLeft)} right={C(p.wallRight)} top={C(p.wallTop)} tex={p.tex} />
+      <GroundShadow rx={A + D + 14} ry={(A + D) / 2 + 10} cast={false} />
+      <Box A={A} D={D} h={H} castH={H + rise * 0.8} left={C(p.wallLeft)} right={C(p.wallRight)} top={C(p.wallTop)} tex={p.tex} />
       {p.left && <g transform={leftFaceTf(0, 0, A, D)}>{p.left}</g>}
       <g transform={rightFaceTf(0, 0, A, D)}>
         {p.right}

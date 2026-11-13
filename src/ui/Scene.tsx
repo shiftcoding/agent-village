@@ -21,6 +21,9 @@ import {
   QuestBoard,
   SCENE,
   SPECIALIST_RINGS,
+  BUILDING_RINGS,
+  TAVERN_RING,
+  GATEHOUSE_RING,
   Schoolhouse,
   SignalIcon,
   TALLY_TEXT_RECT,
@@ -127,11 +130,6 @@ function Focusable({ label, panel, onOpen, ring, at, hit, className, id, gRef, w
 
 /* ------------------------------------------------------------ project buildings */
 
-const RING: Record<string, Box> = {
-  'hearth-lodge': { x: -178, y: -240, w: 312, h: 335 },
-  'cartographers-workshop': { x: -118, y: -240, w: 236, h: 320 },
-  plot: { x: -90, y: -115, w: 180, h: 180 },
-};
 
 const ProjectArt = memo(function ProjectArt({ p, stage, overall }: { p: Project; stage?: Stage; overall?: number | null }): JSX.Element {
   if (p.plot === 'no-folder') return <Plot kind="no-folder" />;
@@ -709,7 +707,7 @@ function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.E
       case 'tavern': {
         const n = village.agents.filter((a) => a.location.kind === 'tavern').length;
         return (
-          <Focusable key={s.id} label={`Tavern: ${n} ${n === 1 ? 'agent rests' : 'agents rest'} here. Agents with no open tasks go to the tavern.`} panel={{ kind: 'place', id: 'tavern' }} onOpen={onOpen} at={at} ring={{ x: -130, y: -170, w: 260, h: 250 }}>
+          <Focusable key={s.id} label={`Tavern: ${n} ${n === 1 ? 'agent rests' : 'agents rest'} here. Agents with no open tasks go to the tavern.`} panel={{ kind: 'place', id: 'tavern' }} onOpen={onOpen} at={at} ring={TAVERN_RING}>
             <Tavern />
           </Focusable>
         );
@@ -717,7 +715,7 @@ function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.E
       case 'gatehouse': {
         const n = village.agents.filter((a) => a.location.kind === 'gatehouse').length;
         return (
-          <Focusable key={s.id} label={`Gatehouse: ${n} ${n === 1 ? 'agent waits' : 'agents wait'} for code review. Nothing passes unchecked.`} panel={{ kind: 'place', id: 'gatehouse' }} onOpen={onOpen} at={at} ring={{ x: -130, y: -150, w: 260, h: 175 }}>
+          <Focusable key={s.id} label={`Gatehouse: ${n} ${n === 1 ? 'agent waits' : 'agents wait'} for code review. Nothing passes unchecked.`} panel={{ kind: 'place', id: 'gatehouse' }} onOpen={onOpen} at={at} ring={GATEHOUSE_RING}>
             <Gatehouse />
           </Focusable>
         );
@@ -725,7 +723,7 @@ function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.E
       default: {
         const p = village.projects.find((x) => `project:${x.id}` === s.id);
         if (!p) return null;
-        const ring = p.plot !== 'ok' ? RING.plot : (RING[p.building] ?? RING.plot);
+        const ring = p.plot !== 'ok' ? BUILDING_RINGS.plot : ((BUILDING_RINGS as Record<string, Box>)[p.building] ?? BUILDING_RINGS.plot);
         return (
           <Focusable key={s.id} label={projectTip(p)} panel={{ kind: 'project', id: p.id }} onOpen={onOpen} at={at} ring={ring as Box}>
             <ProjectNode p={p} reduced={reduced} />
@@ -821,7 +819,7 @@ function CharacterSpriteView({ c, view, registry }: { c: PlacedChar; view: WalkV
 function CharacterHit({ c, village, onOpen, xp, walking, registry }: { c: PlacedChar; village: Village; onOpen: OpenPanel; xp: boolean; walking: boolean; registry: Map<string, SVGGElement> }): JSX.Element {
   const a = c.agent;
   const half = c.width / 2 + 4;
-  const top = c.alert ? -104 : -80;
+  const top = c.alert ? -114 : -88;
   const ref = useRegistered(registry, c.key);
   return (
     <Focusable

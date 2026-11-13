@@ -1,7 +1,7 @@
 import type { HealthKind } from '../../data/types';
 import { C, LINE, type Geo, type Pt } from './iso';
 
-const thin = { ...LINE, strokeWidth: 0.9 } as const;
+const thin = { ...LINE, strokeWidth: 0.95 } as const;
 
 /** Chimney smoke (or brazier smoke). Animated puffs + a static stack for reduced motion. */
 export function Smoke({ at }: { at: Pt }): JSX.Element {

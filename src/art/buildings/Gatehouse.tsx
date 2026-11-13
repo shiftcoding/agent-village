@@ -1,8 +1,8 @@
 import type { BuildingAnchors } from '../contract';
 import { LitPane } from './Lamp';
-import { C, FlatFx, GroundShadow, LINE, SHADE_OPACITY } from './iso';
+import { C, CastShadow, Scaled, scalePt, scaleRing, FlatFx, GroundShadow, HEAVY, LINE, SHADE_OPACITY } from './iso';
 
-const thin = { ...LINE, strokeWidth: 0.9 } as const;
+const thin = { ...LINE, strokeWidth: 0.95 } as const;
 
 /**
  * Standing spots (local coords, anchor = bottom centre of the gate opening). Index 0 is the paladin at his
@@ -18,16 +18,19 @@ export const GATEHOUSE_SPOTS: Array<{ x: number; y: number }> = [
   { x: 118, y: 32 },
 ];
 
+const GK = 1.2;
+const GO = { x: 0, y: 0 };
+export const GATEHOUSE_RING = scaleRing({ x: -96, y: -172, w: 226, h: 227 }, GO, GK);
 export const GATEHOUSE_ANCHORS: BuildingAnchors = {
   door: { x: 0, y: 0 },
-  roof: { x: 0, y: -150 },
+  roof: scalePt({ x: 0, y: -150 }, GO, GK),
   workSpots: GATEHOUSE_SPOTS,
 };
 
 function Tower({ x, shaded }: { x: number; shaded?: boolean }): JSX.Element {
   return (
     <g transform={`translate(${x} 0)`}>
-      <rect x={-28} y={-124} width={56} height={124} fill={C('stone-light')} {...LINE} />
+      <rect x={-28} y={-124} width={56} height={124} fill={C('stone-light')} {...HEAVY} />
       <FlatFx x={-28} y={-124} w={56} h={124} tex="stone" dim={shaded} />
       {shaded && <rect x={-28} y={-124} width={56} height={124} fill={C('shade')} style={SHADE_OPACITY} />}
       <g fill={C('stone')} {...thin}>
@@ -51,12 +54,14 @@ function Tower({ x, shaded }: { x: number; shaded?: boolean }): JSX.Element {
  */
 export function Gatehouse(): JSX.Element {
   return (
+    <Scaled k={GK} o={GO}>
     <g>
-      <GroundShadow cx={12} cy={8} rx={120} ry={16} />
+      <CastShadow foot={[{ x: -100, y: 2 }, { x: 100, y: 2 }, { x: 100, y: -14 }, { x: -100, y: -14 }]} h={120} />
+      <GroundShadow cx={12} cy={8} rx={120} ry={16} cast={false} />
       <Tower x={-70} />
       <Tower x={70} shaded />
       {/* lintel wall */}
-      <rect x={-44} y={-112} width={88} height={52} fill={C('stone-light')} {...LINE} />
+      <rect x={-44} y={-112} width={88} height={52} fill={C('stone-light')} {...HEAVY} />
       <FlatFx x={-44} y={-112} w={88} h={52} tex="stone" />
       <g fill={C('stone')} {...thin}>
         {[-44, -30, -16, -2, 12, 26].map((mx) => (
@@ -93,5 +98,6 @@ export function Gatehouse(): JSX.Element {
         </g>
       ))}
     </g>
+    </Scaled>
   );
 }

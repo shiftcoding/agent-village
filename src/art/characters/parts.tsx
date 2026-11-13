@@ -6,7 +6,7 @@ export const v = (name: string): string => `var(--va-${name})`;
 /** Hand-painted look: warm brown outline, round joins. */
 export const O = {
   stroke: 'var(--va-outline)',
-  strokeWidth: 1.1,
+  strokeWidth: 1.35,
   strokeLinejoin: 'round',
   strokeLinecap: 'round',
 } as const;

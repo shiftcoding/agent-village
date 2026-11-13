@@ -1,7 +1,7 @@
 import type { Pt } from './iso';
 import { C, LINE } from './iso';
 
-const thin = { ...LINE, strokeWidth: 0.9 } as const;
+const thin = { ...LINE, strokeWidth: 0.95 } as const;
 
 /**
  * Content-pipeline cart: a small two-wheeled hand cart with a crate of scrolls. Local origin = the wheel contact

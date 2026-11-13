@@ -1,8 +1,9 @@
 import type { BuildingAnchors } from '../contract';
 import { LitPane } from './Lamp';
-import { Box, C, GroundShadow, LINE, RoofFx, SHADE_OPACITY, U, iso, leftFaceTf, pts, rightFaceTf } from './iso';
+import { Barrel, Crate } from './Props';
+import { Box, C, GroundShadow, LINE, RoofFx, SHADE_OPACITY, U, iso, leftFaceTf, pts, rightFaceTf, Scaled, scalePt, scaleRing } from './iso';
 
-const thin = { ...LINE, strokeWidth: 0.9 } as const;
+const thin = { ...LINE, strokeWidth: 0.95 } as const;
 
 const A = 48;
 const D = 34;
@@ -13,9 +14,12 @@ const RISE = 30;
 export const TAVERN_SIT_SPOTS: Array<{ x: number; y: number }> = [-20, 0, 20].flatMap((a) => [iso(0, 0, a, D + 12, 4), iso(0, 0, a, D + 38, 4)]);
 export const TAVERN_STAND_SPOTS: Array<{ x: number; y: number }> = [iso(0, 0, -56, D + 14), iso(0, 0, 56, D + 14), iso(0, 0, -50, D + 44), iso(0, 0, 50, D + 44)];
 
+/** Scale origin (T39 round 2): ground at the foot of the front wall; the building is drawn 1.25x, the benches and spots stay. */
+const O = iso(0, 0, 0, D);
+export const TAVERN_RING = scaleRing({ x: -130, y: -121, w: 260, h: 201 }, O, undefined, 140);
 export const TAVERN_ANCHORS: BuildingAnchors = {
-  door: iso(0, 0, 0, D + 3),
-  roof: iso(0, 0, 0, 0, H + RISE),
+  door: scalePt(iso(0, 0, 0, D + 3), O),
+  roof: scalePt(iso(0, 0, 0, 0, H + RISE), O),
   workSpots: [...TAVERN_SIT_SPOTS, ...TAVERN_STAND_SPOTS],
 };
 
@@ -46,8 +50,9 @@ export function Tavern(): JSX.Element {
   const sg = iso(0, 0, A - 8, D, 0);
   return (
     <g>
-      <GroundShadow rx={A + D + 14} ry={(A + D) / 2 + 10} />
-      <Box A={A} D={D} h={H} left={C('plaster')} right={C('plaster-shade')} top={C('wood')} tex="plaster" />
+      <Scaled o={O}>
+      <GroundShadow rx={A + D + 14} ry={(A + D) / 2 + 10} cast={false} />
+      <Box A={A} D={D} h={H} castH={H + RISE * 0.8} left={C('plaster')} right={C('plaster-shade')} top={C('wood')} tex="plaster" />
       <g transform={leftFaceTf(0, 0, A, D)}>
         <path d={`M0,0 L0,${-H} M${A * 2},0 L${A * 2},${-H} M${A},0 L${A},${-H}`} stroke={C('wood')} strokeWidth={3.4} />
         <path d={`M0,${-H / 2} L${A * 2},${-H / 2}`} stroke={C('wood')} strokeWidth={3} />
@@ -82,6 +87,16 @@ export function Tavern(): JSX.Element {
       <line x1={Ft.x} y1={Ft.y} x2={M2.x} y2={M2.y} stroke={C('thatch-dark')} strokeWidth={3.4} strokeLinecap="round" />
       <line x1={Rt.x} y1={Rt.y} x2={M2.x} y2={M2.y} stroke={C('thatch-dark')} strokeWidth={3.4} strokeLinecap="round" />
       <line x1={M1.x} y1={M1.y} x2={M2.x} y2={M2.y} stroke={C('thatch-dark')} strokeWidth={3} strokeLinecap="round" />
+      {/* role props: ale barrels and a crate at the left corner */}
+      <g transform={`translate(${iso(0, 0, -A - 10, D - 4).x} ${iso(0, 0, -A - 10, D - 4).y})`}>
+        <Barrel />
+      </g>
+      <g transform={`translate(${iso(0, 0, -A - 14, D - 14).x} ${iso(0, 0, -A - 14, D - 14).y})`}>
+        <Barrel s={0.9} />
+      </g>
+      <g transform={`translate(${iso(0, 0, -A - 30, D + 4).x} ${iso(0, 0, -A - 30, D + 4).y})`}>
+        <Crate />
+      </g>
       {/* hanging mug sign */}
       <g transform={`translate(${sg.x + 6} ${sg.y - 40})`}>
         <path d="M-10,-20 L10,-20" stroke={C('outline')} strokeWidth={2} />
@@ -91,7 +106,8 @@ export function Tavern(): JSX.Element {
         <path d="M5,-3 Q11,-3 10,3 Q9,7 5,6" fill="none" stroke={C('outline')} strokeWidth={1.4} />
         <rect x={-5} y={-5} width={9} height={3.4} fill={C('c-yellow')} />
       </g>
-      {/* long table + two benches */}
+      </Scaled>
+      {/* long table + two benches (not scaled: the sitting spots are on them) */}
       <Bench b={D + 12} />
       <Box cx={iso(0, 0, 0, D + 24).x} cy={iso(0, 0, 0, D + 24).y} A={30} D={6} h={13} left={C('wood-light')} right={C('wood')} top={C('wood-light')} tex="planks" />
       <Bench b={D + 38} />

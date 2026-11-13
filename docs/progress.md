@@ -2,13 +2,14 @@
 
 Stage: building
 Overall: 97%
-Updated: 2026-11-13 17:06
+Updated: 2026-11-13 17:42
 
 ## Needs you
 - [x] Review phase 1 (v1 static village) before phase 2 starts (raised by orchestrator)
 - [x] Review phase 2 (live data from npm run sync) before phase 3 starts (raised by orchestrator)
-- [ ] Review phase 3 (polish) before the art pass and Answer in Claude button start (raised by orchestrator)
-- [ ] Review the art pass (docs/screenshots before-*/after-*) and the Answer in Claude button (raised by orchestrator)
+- [x] Review phase 3 (polish) before the art pass and Answer in Claude button start (raised by orchestrator)
+- [x] Review the art pass (docs/screenshots before-*/after-*) and the Answer in Claude button (raised by orchestrator)
+- [ ] Review bold art pass 2 (docs/screenshots after-* vs after2-*) (raised by orchestrator)
 - [ ] Confirm the v1 fixture extensions docs/reviews/*.md (failing signal) and ?now override as conventions for phase 2 (raised by typescript-pro)
 
 ## Milestones
@@ -26,7 +27,7 @@ Updated: 2026-11-13 17:06
 - [x] Phase 3: reviewed (accessibility and code review)
 - [x] Art pass: richer hand-painted look in code (shading, texture, lighting, character detail)
 - [x] "Answer in Claude" button (copies a prompt per Needs-you item and agent; read-only)
-- [ ] Bold art pass 2: village reads as a richer painted scene at 1280 px
+- [x] Bold art pass 2: village reads as a richer painted scene at 1280 px
 
 ## Tasks
 | ID | Task | Agent | Status | Notes |
@@ -69,7 +70,12 @@ Updated: 2026-11-13 17:06
 | T36 | Code review of art pass and Answer in Claude button | code-reviewer | done | 0 must-fix, 3 should-fix (ghost leg overlay, ArtDefs export, unstable item keys), 5 nits; read-only holds |
 | T37 | Fix art review findings (walk-pose leg overlay, ArtDefs export, dark sky glow) | ui-designer | done | 182 tests pass |
 | T38 | Fix UI review findings (focus ring on parchment, fallback keys, touch target, stable keys, defs in list view, memo) | react-specialist | done | Also fixed card estimate and fallback flipping card to block, found in browser check |
-| T39 | Bold art pass 2: strong light and shadow, warmer palette, characterful buildings, bigger characters, varied ground | ui-designer | doing | T31 too subtle at 1280 px; baseline 416.29 kB JS (124.97 gzip), 38.91 kB CSS |
+| T39 | Bold art pass 2: strong light and shadow, warmer palette, characterful buildings, bigger characters, varied ground | ui-designer | done | Buildings 1.2-1.25x with lit and shadow faces, 9 edge pieces; 434 kB JS (130 gzip) |
+| T40 | Wire scaled building rings into the scene | react-specialist | done | BUILDING_RINGS, TAVERN_RING, GATEHOUSE_RING |
+| T41 | Code review of bold art pass 2 | code-reviewer | done | 1 must-fix (workshop and lodge rings too tall), 5 should-fix |
+| T42 | Accessibility review of bold art pass 2 | accessibility-tester | done | 0 must-fix; ring thickness on small screens, ring sizes |
+| T43 | Fix art review findings (ring sizes, barrel, Ground memo, ring tests) | ui-designer | done | 188 tests pass |
+| T44 | Fix scene review findings (3 px non-scaling ring, character ring height) | react-specialist | done | 186 tests pass at the time |
 
 ## Log
 - 2026-11-13 13:20 orchestrator: Scaffolded Vite + React + TypeScript, wrote data and art contracts
@@ -132,3 +138,8 @@ Updated: 2026-11-13 17:06
 - 2026-11-13 17:02 orchestrator: Walk check in headless Chrome on a real status edit (restored): 60 fps, worst frame 16.8 ms, no console errors
 - 2026-11-13 17:02 orchestrator: Final checks: typecheck, 182 tests, build and sync pass; bundle 415.95 kB JS (124.85 gzip), 38.91 kB CSS; after screenshots saved
 - 2026-11-13 17:06 orchestrator: Ivan asked for a bolder second art pass (T31 too subtle at 1280 px); baseline bundle 416.29 kB JS (124.97 gzip), 38.91 kB CSS; delegated T39 to ui-designer
+- 2026-11-13 17:26 ui-designer: First T39 round: deeper meadow, three outline weights, cast shadows, characters 14 % bigger, light focus ring darkened to #0c2f6e; 186 tests pass
+- 2026-11-13 17:26 orchestrator: Judged round 1 not obvious enough on buildings and characters, and too much scattered dressing (41 pieces); sent back for bigger, bolder buildings and at most about 12 framing pieces
+- 2026-11-13 17:30 orchestrator: Ivan approved phase 3 and the first art pass with the Answer in Claude button in chat; both review items checked off
+- 2026-11-13 17:42 ui-designer: Finished T39 round 2: buildings 1.2-1.25x with clear lit and shadow faces, dressing cut to 9 edge pieces
+- 2026-11-13 17:42 orchestrator: Reviews done (T41, T42); fixes T43 and T44 done; typecheck, 188 tests, build and sync pass; focus rings checked in the browser at 3 px and fitted to each building

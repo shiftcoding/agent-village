@@ -1,8 +1,8 @@
 import type { BuildingAnchors } from '../contract';
 import { LAMP_STYLE, LitPane } from './Lamp';
-import { C, FlatFx, GroundShadow, LINE, SHADE_OPACITY, U } from './iso';
+import { C, CastShadow, FlatFx, GroundShadow, HEAVY, LINE, SHADE_OPACITY, U } from './iso';
 
-const thin = { ...LINE, strokeWidth: 0.9 } as const;
+const thin = { ...LINE, strokeWidth: 0.95 } as const;
 
 export interface Rect {
   x: number;
@@ -52,13 +52,14 @@ export function TownHall(): JSX.Element {
   const n = TOWN_HALL_NOTICE_RECT;
   return (
     <g>
-      <GroundShadow cx={20} cy={14} rx={170} ry={26} />
+      <CastShadow foot={[{ x: -130, y: 0 }, { x: 130, y: 0 }, { x: 190, y: -30 }, { x: -130, y: -30 }]} h={175} />
+      <GroundShadow cx={20} cy={14} rx={170} ry={26} cast={false} />
       {/* side wing (shaded) and its roof */}
-      <polygon points="130,0 190,-30 190,-182 130,-190" fill={C('plaster-shade')} {...LINE} />
+      <polygon points="130,0 190,-30 190,-182 130,-190" fill={C('plaster-shade')} {...HEAVY} />
       <polygon points="130,0 190,-30 190,-182 130,-190" fill={U('p-plaster')} />
       <polygon points="130,0 190,-30 190,-182 130,-190" fill={C('shade')} style={SHADE_OPACITY} />
       <polygon points="130,0 190,-30 190,-182 130,-190" fill={U('g-dim')} />
-      <polygon points="142,-190 202,-220 62,-276 0,-246" fill={C('slate-dark')} {...LINE} />
+      <polygon points="142,-190 202,-220 62,-276 0,-246" fill={C('slate-dark')} {...HEAVY} />
       <polygon points="142,-190 202,-220 62,-276 0,-246" fill={U('p-slate-r')} />
       <polygon points="142,-190 202,-220 62,-276 0,-246" fill={U('g-lit')} />
       <path d="M150,-60 L176,-73 L176,-100 L150,-87 Z" fill={C('window')} {...thin} />
@@ -68,14 +69,14 @@ export function TownHall(): JSX.Element {
         <path d="M150,-125 L176,-138 L176,-160 L150,-147 Z" fill={C('window-lit')} {...thin} />
       </g>
       {/* facade */}
-      <rect x={-130} y={-190} width={260} height={190} fill={C('plaster')} {...LINE} />
+      <rect x={-130} y={-190} width={260} height={190} fill={C('plaster')} {...HEAVY} />
       <FlatFx x={-130} y={-190} w={260} h={190} tex="plaster" />
       <rect x={-130} y={-18} width={260} height={18} fill={C('stone')} {...LINE} />
       <FlatFx x={-130} y={-18} w={260} h={18} tex="stone" />
       <path d="M-130,-190 L-130,0 M130,-190 L130,0" stroke={C('wood-dark')} strokeWidth={5} />
       <path d="M-130,-186 L130,-186" stroke={C('wood-dark')} strokeWidth={5} />
       {/* pediment + roof */}
-      <polygon points="-142,-190 142,-190 0,-246" fill={C('slate')} {...LINE} />
+      <polygon points="-142,-190 142,-190 0,-246" fill={C('slate')} {...HEAVY} />
       <polygon points="-142,-190 142,-190 0,-246" fill={U('g-lit')} />
       <polygon points="-120,-194 120,-194 0,-240" fill={C('plaster')} {...thin} />
       <circle cx={0} cy={-214} r={9} fill={C('window')} stroke={C('wood-dark')} strokeWidth={3} />
@@ -87,7 +88,7 @@ export function TownHall(): JSX.Element {
       <path d="M-14,-246 L-14,-282 Q0,-296 14,-282 L14,-246 Z" fill={C('outline')} />
       <path d="M-7,-266 Q0,-262 7,-266 L9,-252 L-9,-252 Z" fill={C('gold')} {...thin} />
       <circle cx={0} cy={-251} r={2} fill={C('gold-dark')} />
-      <polygon points="-30,-296 30,-296 0,-336" fill={C('slate')} {...LINE} />
+      <polygon points="-30,-296 30,-296 0,-336" fill={C('slate')} {...HEAVY} />
       <polygon points="-30,-296 30,-296 0,-336" fill={U('g-lit')} />
       <line x1={0} y1={-336} x2={0} y2={-352} stroke={C('outline')} strokeWidth={2} />
       <path d="M0,-352 L18,-346 L0,-340 Z" fill={C('alert')} {...thin} />

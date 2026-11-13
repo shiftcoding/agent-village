@@ -1,7 +1,7 @@
 import { C, LINE, iso, pts, type Pt } from './iso';
 import type { BuildingAnchors } from '../contract';
 
-const thin = { ...LINE, strokeWidth: 0.9 } as const;
+const thin = { ...LINE, strokeWidth: 0.95 } as const;
 
 function wrap(text: string): string[] {
   const t = text.length > 34 ? `${text.slice(0, 33)}…` : text;

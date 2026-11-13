@@ -1,36 +1,76 @@
+import { memo } from 'react';
 import { ArtDefs } from '../ArtDefs';
 import { LANTERN_SPOTS, SCENE, gridToScene } from '../layout';
 import { pathNetwork } from '../network';
 import { Lantern } from './Lamp';
-import { C, LINE, U } from './iso';
+import { DressPiece, groundDressing } from './Dressing';
+import { C, HEAVY, LINE, U } from './iso';
 
-const thin = { ...LINE, strokeWidth: 0.9 } as const;
 
-/** Small round-crowned tree used only to frame the scene edges. (x,y) is the foot of the trunk. */
-export function Tree({ x, y, s = 1 }: { x: number; y: number; s?: number }): JSX.Element {
+/** One foliage clump: flat token fill, outline, sphere shading, a lit crescent top left and a dark crescent bottom right. */
+function Clump({ cx, cy, r, fill, lit = 0.4, dark = 0.5, deep = 0 }: { cx: number; cy: number; r: number; fill: string; lit?: number; dark?: number; deep?: number }): JSX.Element {
   return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <ellipse cx={12} cy={3} rx={40} ry={11} fill={U('g-contact')} />
-      <ellipse cx={2} cy={1} rx={16} ry={5} fill={U('g-contact')} />
-      {/* trunk: root flare, bark, light on the left */}
-      <path d="M-8,3 Q-5,-4 -5,-34 L5,-34 Q5,-4 8,3 Q0,6 -8,3 Z" fill={C('wood-dark')} {...thin} />
-      <path d="M-5,-34 L-5,-4 L-2,-4 L-1.5,-34 Z" fill={C('highlight')} fillOpacity={0.22} />
-      <path d="M2,-30 L2.4,-12 M-2,-20 L-1.6,-8" stroke={C('outline')} strokeOpacity={0.35} strokeWidth={0.9} fill="none" />
-      {/* crown: three lobes, each a flat token fill plus a soft sphere overlay and leaf dabs */}
-      <circle cx={-16} cy={-48} r={20} fill={C('grass-2')} {...LINE} />
-      <circle cx={-16} cy={-48} r={20} fill={U('g-sphere')} />
-      <circle cx={16} cy={-50} r={22} fill={C('grass-2')} {...LINE} />
-      <circle cx={16} cy={-50} r={22} fill={U('g-sphere')} />
-      <circle cx={0} cy={-68} r={25} fill={C('leaf')} {...LINE} />
-      <circle cx={0} cy={-68} r={25} fill={U('g-sphere')} />
-      <g fill="none" strokeLinecap="round" strokeWidth={2.4} pointerEvents="none">
-        <path d="M-12,-76 q4,-4 8,-1 M-24,-52 q4,-4 8,-1 M6,-82 q4,-2 7,1 M8,-56 q4,-4 8,-1" stroke={C('highlight')} strokeOpacity={0.4} />
-        <path d="M-6,-60 q4,3 8,0 M12,-44 q4,3 8,0 M-22,-42 q4,3 8,0 M14,-70 q3,3 7,1" stroke={C('shade')} style={{ strokeOpacity: 'var(--va-shade-opacity)' }} />
-      </g>
-      <path d="M10,-60 Q22,-52 14,-40" fill="none" stroke={C('shade')} style={{ strokeOpacity: 'var(--va-shade-opacity)' }} strokeWidth={6} strokeLinecap="round" />
+    <g>
+      <circle cx={cx} cy={cy} r={r} fill={fill} {...LINE} />
+      {deep > 0 && <circle cx={cx} cy={cy} r={r - 0.7} fill={C('shadow')} style={{ fillOpacity: `calc(${deep} + var(--va-foliage-deep))` }} />}
+      <circle cx={cx} cy={cy} r={r} fill={U('g-sphere')} />
+      <path d={`M${cx - r * 0.7},${cy + r * 0.05} A${r * 0.72},${r * 0.72} 0 0 1 ${cx + r * 0.05},${cy - r * 0.72}`} fill="none" stroke={C('highlight')} strokeOpacity={lit} strokeWidth={r * 0.2} strokeLinecap="round" />
+      <path d={`M${cx + r * 0.72},${cy - r * 0.05} A${r * 0.72},${r * 0.72} 0 0 1 ${cx - r * 0.05},${cy + r * 0.72}`} fill="none" stroke={C('shadow')} strokeOpacity={dark} strokeWidth={r * 0.26} strokeLinecap="round" />
     </g>
   );
 }
+
+/**
+ * Tree with layered foliage: a dark back layer, a mid layer and lit clumps on top (light from the top left), a trunk with bark
+ * and a root flare, a hard-edged cast shadow falling to the bottom right and a soft contact shadow. (x,y) is the foot of the trunk.
+ */
+export function Tree({ x, y, s = 1 }: { x: number; y: number; s?: number }): JSX.Element {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <g fill="var(--va-shadow)">
+        <ellipse cx={40} cy={10} rx={60} ry={15} style={{ fillOpacity: 'calc(var(--va-shadow-opacity) * 0.55)' }} />
+        <ellipse cx={34} cy={7} rx={48} ry={11} style={{ fillOpacity: 'calc(var(--va-shadow-opacity) * 0.8)' }} />
+      </g>
+      <ellipse cx={2} cy={1} rx={18} ry={5.5} fill={U('g-contact')} />
+      {/* trunk: root flare, forked branch, bark, light on the left, shade on the right */}
+      <path d="M-10,4 Q-6,-4 -6,-40 L6,-40 Q6,-4 10,4 Q0,7 -10,4 Z" fill={C('wood')} {...LINE} />
+      <path d="M-6,-40 L-6,-4 L-9,3 L-3,-4 L-2,-40 Z" fill={C('wood-light')} fillOpacity={0.8} />
+      <path d="M2,-40 L6,-40 Q6,-4 10,4 Q4,5 2,3 Z" fill={C('shade')} style={{ fillOpacity: 'var(--va-shade-opacity)' }} />
+      <path d="M-3,-46 L-16,-62 M3,-46 L14,-64" stroke={C('outline')} strokeWidth={7} strokeLinecap="round" />
+      <path d="M-3,-46 L-16,-62 M3,-46 L14,-64" stroke={C('wood')} strokeWidth={4.4} strokeLinecap="round" />
+      <path d="M2,-34 L2.4,-14 M-2,-24 L-1.6,-10" stroke={C('outline')} strokeOpacity={0.4} strokeWidth={1} fill="none" />
+      {/* back layer (in shade) */}
+      <Clump cx={-28} cy={-60} r={21} fill={C('grass-2')} lit={0.15} dark={0.6} deep={0.42} />
+      <Clump cx={28} cy={-62} r={22} fill={C('grass-2')} lit={0.1} dark={0.6} deep={0.45} />
+      <Clump cx={0} cy={-92} r={22} fill={C('grass-2')} lit={0.2} dark={0.6} deep={0.38} />
+      {/* mid layer */}
+      <Clump cx={-17} cy={-68} r={22} fill={C('leaf')} deep={0.22} />
+      <Clump cx={20} cy={-72} r={23} fill={C('leaf')} deep={0.22} />
+      <Clump cx={-3} cy={-86} r={22} fill={C('leaf')} deep={0.22} />
+      {/* lit top clumps */}
+      <Clump cx={-15} cy={-88} r={17} fill={C('leaf')} lit={0.45} dark={0.3} deep={0.12} />
+      <Clump cx={8} cy={-98} r={16} fill={C('leaf')} lit={0.5} dark={0.35} deep={0.12} />
+      <g fill="none" strokeLinecap="round" strokeWidth={2.6} pointerEvents="none">
+        <path d="M-26,-76 q4,-4 8,-1 M-6,-60 q4,3 8,0 M14,-84 q4,-3 8,0 M24,-60 q4,3 8,0 M-34,-56 q3,3 7,0" stroke={C('shade')} style={{ strokeOpacity: 'var(--va-shade-opacity)' }} />
+        <path d="M-12,-102 q4,-3 8,0 M10,-92 q3,-3 7,0" stroke={C('highlight')} strokeOpacity={0.6} />
+      </g>
+    </g>
+  );
+}
+
+/** Framing trees (foot of the trunk, scale). Exported for the clearance test. */
+export const TREES: Array<{ x: number; y: number; s: number }> = [
+  { x: 70, y: 300, s: 1.25 },
+  { x: 150, y: 190, s: 1.05 },
+  { x: 50, y: 620, s: 1.3 },
+  { x: 150, y: 900, s: 1.15 },
+  { x: 420, y: 965, s: 1 },
+  { x: 1400, y: 150, s: 1.05 },
+  { x: 1565, y: 545, s: 1.25 },
+  { x: 1380, y: 975, s: 1.05 },
+  { x: 400, y: 120, s: 0.95 },
+  { x: 1180, y: 120, s: 1 },
+];
 
 const TUFTS: Array<[number, number]> = [
   [90, 140], [240, 90], [420, 160], [560, 110], [700, 70], [900, 90], [1060, 140], [1190, 100], [1400, 150], [1520, 90],
@@ -75,7 +115,8 @@ function pathKerbStones(segs: Array<{ a: { x: number; y: number }; b: { x: numbe
  * LANTERN_SPOTS (lit at dusk and night only). Fill the whole viewBox. `projectSpots` are the scene positions of the
  * project buildings (gridToScene of their config position); the `id` is optional.
  */
-export function Ground({ projectSpots, lanterns = true }: { projectSpots?: Array<{ x: number; y: number; id?: string }>; lanterns?: boolean }): JSX.Element {
+type GroundProps = { projectSpots?: Array<{ x: number; y: number; id?: string }>; lanterns?: boolean };
+function GroundImpl({ projectSpots, lanterns = true }: GroundProps): JSX.Element {
   const { width: W, height: Hh, plaza: p } = SCENE;
   const lodge = gridToScene(3, 2);
   const work = gridToScene(-3, 2);
@@ -107,9 +148,13 @@ export function Ground({ projectSpots, lanterns = true }: { projectSpots?: Array
       ))}
       {/* paths: all edges as edge-coloured strokes first, then the path colour on top, so crossings merge */}
       <g fill="none" strokeLinecap="round" strokeLinejoin="round">
-        <path d={d.join(' ')} stroke={C('path-edge')} strokeWidth={34} />
+        <path d={d.join(' ')} stroke={C('outline')} strokeOpacity={0.5} strokeWidth={39} />
         {junctions.map(([k, n]) => (
-          <circle key={k} cx={n.x} cy={n.y} r={17} fill={C('path-edge')} />
+          <circle key={k} cx={n.x} cy={n.y} r={19.5} fill={C('outline')} fillOpacity={0.5} />
+        ))}
+        <path d={d.join(' ')} stroke={C('path-edge')} strokeWidth={35} />
+        {junctions.map(([k, n]) => (
+          <circle key={k} cx={n.x} cy={n.y} r={17.5} fill={C('path-edge')} />
         ))}
         <path d={d.join(' ')} stroke={C('path')} strokeWidth={26} />
         {junctions.map(([k, n]) => (
@@ -126,22 +171,18 @@ export function Ground({ projectSpots, lanterns = true }: { projectSpots?: Array
       <path d={kerb} stroke={C('stone-light')} strokeOpacity={0.75} strokeWidth={4.2} strokeLinecap="round" fill="none" />
       <path d={kerb} transform="translate(-0.6 -0.7)" stroke={C('highlight')} strokeOpacity={0.5} strokeWidth={1.6} strokeLinecap="round" fill="none" />
       {/* plaza: rim, paving, bevel */}
-      <polygon points={`${p.x},${p.y - p.ry - 8} ${p.x + p.rx + 16},${p.y} ${p.x},${p.y + p.ry + 8} ${p.x - p.rx - 16},${p.y}`} fill={C('path-edge')} />
+      <polygon points={`${p.x},${p.y - p.ry - 10} ${p.x + p.rx + 20},${p.y} ${p.x},${p.y + p.ry + 10} ${p.x - p.rx - 20},${p.y}`} fill={C('plaza-2')} {...HEAVY} />
       <polygon points={plazaDiamond} fill={C('plaza')} {...LINE} />
       <polygon points={plazaDiamond} fill={U('p-cobble')} />
       <polygon points={`${p.x},${p.y - p.ry + 5} ${p.x + p.rx - 11},${p.y} ${p.x},${p.y + p.ry - 5} ${p.x - p.rx + 11},${p.y}`} fill="none" stroke={C('plaza-2')} strokeOpacity={0.7} strokeWidth={1.2} strokeDasharray="9 3" />
       <rect x={0} y={0} width={W} height={Hh} fill={U('g-vignette')} />
-      {/* framing trees at the edges */}
-      <Tree x={70} y={300} s={1.1} />
-      <Tree x={150} y={190} s={0.9} />
-      <Tree x={50} y={620} s={1.15} />
-      <Tree x={150} y={900} s={1} />
-      <Tree x={420} y={965} s={0.85} />
-      <Tree x={1400} y={150} s={0.9} />
-      <Tree x={1565} y={545} s={1.1} />
-      <Tree x={1380} y={975} s={0.9} />
-      <Tree x={400} y={120} s={0.8} />
-      <Tree x={1180} y={120} s={0.85} />
+      {/* framing trees, hedges, bushes, rocks, flower beds and fences, back to front */}
+      {[
+        ...TREES.map((t) => ({ y: t.y, el: <Tree key={`t${t.x},${t.y}`} x={t.x} y={t.y} s={t.s} /> })),
+        ...groundDressing(spots).map((d, i) => ({ y: d.y + (d.kind === 'hedge' || d.kind === 'fence' ? (d.len ?? 0) / 2 : 0), el: <DressPiece key={`d${i}`} d={d} /> })),
+      ]
+        .sort((m, n) => m.y - n.y)
+        .map((o) => o.el)}
       {lanterns &&
         [...LANTERN_SPOTS]
           .sort((a, b) => a.y - b.y)
@@ -153,3 +194,9 @@ export function Ground({ projectSpots, lanterns = true }: { projectSpots?: Array
     </g>
   );
 }
+
+const sameSpots = (a: GroundProps['projectSpots'], b: GroundProps['projectSpots']): boolean =>
+  a === b || (!!a && !!b && a.length === b.length && a.every((s, i) => s.x === b[i]?.x && s.y === b[i]?.y && s.id === b[i]?.id));
+
+/** Memoized by value: groundDressing and the path network are only rebuilt when the project spots (or lanterns) change, not on every Scene render. */
+export const Ground = memo(GroundImpl, (p, n) => p.lanterns === n.lanterns && sameSpots(p.projectSpots, n.projectSpots));

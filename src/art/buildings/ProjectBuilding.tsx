@@ -3,7 +3,7 @@ import type { Stage } from '../../data/types';
 import type { BuildingAnchors, BuildingArtProps } from '../contract';
 import { BackOverlays, FrontOverlays } from './Overlays';
 import { Plot, SignPost, Stakes } from './Plot';
-import { Beam, Box, C, GroundShadow, LINE, RoofFx, SHADE_OPACITY, U, iso, leftFaceTf, pts, rightFaceTf, type Geo, type Pt } from './iso';
+import { Beam, Box, C, CastShadow, Scaled, scalePt, GroundShadow, LINE, RoofFx, SHADE_OPACITY, U, iso, leftFaceTf, pts, rightFaceTf, type Geo, type Pt } from './iso';
 
 export type BuildingVariant = 'lodge' | 'workshop';
 
@@ -20,13 +20,28 @@ interface Spec {
 }
 
 export const SPECS: Record<BuildingVariant, Spec> = {
-  lodge: { A: 58, D: 34, floorH: 42, floors: 2, rise: 34, doorH: 34, sa: 8, sd: 10 },
-  workshop: { A: 34, D: 24, floorH: 34, floors: 2, rise: 26, doorH: 28, sa: 5.5, sd: 7 },
+  lodge: { A: 58, D: 34, floorH: 42, floors: 2, rise: 44, doorH: 34, sa: 8, sd: 10 },
+  workshop: { A: 34, D: 24, floorH: 34, floors: 2, rise: 34, doorH: 28, sa: 5.5, sd: 7 },
 };
 
 const PLINTH = 6;
 const OVER = 6;
-const thin = { ...LINE, strokeWidth: 0.9 } as const;
+const thin = { ...LINE, strokeWidth: 0.95 } as const;
+
+/** Scale origin (T39 round 2): ground at the foot of the front wall. The building is drawn BUILDING_SCALE x; garden, work spots and door steps' front edge stay. */
+export function scaleOrigin(variant: BuildingVariant): Pt {
+  return iso(0, 0, 0, SPECS[variant].D);
+}
+
+/**
+ * Focus rings for the project buildings, keyed like the UI's RING record (src/ui/Scene.tsx). The top, left and right follow
+ * the scaled art, the bottom is unchanged (name tags sit below). `plot` is the standalone Plot (no folder / no progress file), not scaled.
+ */
+export const BUILDING_RINGS = {
+  'hearth-lodge': { x: -190, y: -291, w: 300, h: 386 },
+  'cartographers-workshop': { x: -140, y: -242, w: 280, h: 322 },
+  plot: { x: -90, y: -115, w: 180, h: 180 },
+} as const;
 
 /** Anchors for a building variant (local coordinates, footprint centre at 0,0). */
 export function anchorsFor(variant: BuildingVariant): BuildingAnchors {
@@ -35,9 +50,10 @@ export function anchorsFor(variant: BuildingVariant): BuildingAnchors {
   const r2 = D + (variant === 'lodge' ? 34 : 30);
   const a1 = variant === 'lodge' ? [-52, -30, 30, 52] : [-40, -24, 24, 40];
   const a2 = variant === 'lodge' ? [-42, -14, 14, 42] : [-30, -10, 10, 30];
+  const o = scaleOrigin(variant);
   return {
-    door: iso(0, 0, 0, D + 4),
-    roof: iso(0, 0, 0, 0, PLINTH + floors * floorH + rise + (A > 0 ? 0 : 0)),
+    door: scalePt(iso(0, 0, 0, D + 4), o),
+    roof: scalePt(iso(0, 0, 0, 0, PLINTH + floors * floorH + rise + (A > 0 ? 0 : 0)), o),
     workSpots: [...a1.map((a) => iso(0, 0, a, r1)), ...a2.map((a) => iso(0, 0, a, r2))],
   };
 }
@@ -61,6 +77,7 @@ function Win({ x, y, lit, w = 14, h = 17, shut = true }: { x: number; y: number;
       <rect x={-w / 2 - 2.2} y={-h / 2 - 2.2} width={w + 4.4} height={h + 4.4} rx={1.5} fill={C('wood-dark')} {...thin} />
       <rect x={-w / 2 - 3.6} y={h / 2 + 2} width={w + 7.2} height={2.8} rx={0.8} fill={C('wood-light')} {...thin} />
       <rect x={-w / 2} y={-h / 2} width={w} height={h} fill={lit ? C('window-lit') : C('window')} className={lit ? 'va-window-lit' : undefined} />
+      <rect x={-w / 2} y={-h / 2} width={w} height={h} fill={U('g-glass')} />
       <path d={`M0,${-h / 2} L0,${h / 2} M${-w / 2},0 L${w / 2},0`} stroke={C('wood-dark')} strokeWidth={1.4} />
       {!lit && <path d={`M${-w / 2},${-h / 2} L${-w / 2 + 4},${-h / 2} L${-w / 2},${-h / 2 + 5} Z`} fill={C('highlight')} fillOpacity={0.4} />}
     </g>
@@ -139,6 +156,7 @@ export interface ProjectBuildingProps extends BuildingArtProps {
 
 export function ProjectBuilding({ variant, stage, overall, signals, needsYouCount, signText, fireworks }: ProjectBuildingProps): JSX.Element {
   const sp = SPECS[variant];
+  const so = scaleOrigin(variant);
   const { A, D, floorH, floors, rise, doorH, sa, sd } = sp;
   const H = floorH * floors;
   const si = ORDER[stage];
@@ -419,10 +437,14 @@ export function ProjectBuilding({ variant, stage, overall, signals, needsYouCoun
 
   return (
     <g data-stage={stage}>
-      <GroundShadow rx={A + D + 10} ry={(A + D) / 2 + 6} cy={0} />
+      <Scaled o={so}>
+      <GroundShadow rx={A + D + 10} ry={(A + D) / 2 + 6} cy={0} cast={false} />
+      <CastShadow foot={[iso(0, 0, -A - 3, D + 3), iso(0, 0, A + 3, D + 3), iso(0, 0, A + 3, -D - 3), iso(0, 0, -A - 3, -D - 3)]} h={Math.max(14, hasRoof ? ridgeZ * 0.9 : zt + 4)} />
       {earth}
       <BackOverlays geo={geo} signals={signals} fireworks={fireworks} />
+      </Scaled>
       {garden && <GardenBack />}
+      <Scaled o={so}>
       {plinth}
       {strings}
       {survey}
@@ -441,8 +463,11 @@ export function ProjectBuilding({ variant, stage, overall, signals, needsYouCoun
       {mapTable}
       {sign}
       {preSign}
+      </Scaled>
       {garden && <GardenFront />}
-      <FrontOverlays geo={geo} signals={signals} needsYouCount={needsYouCount} />
+      <Scaled o={so}>
+        <FrontOverlays geo={geo} signals={signals} needsYouCount={needsYouCount} />
+      </Scaled>
     </g>
   );
 }
@@ -479,9 +504,11 @@ function PlotWithShadow({
   };
   return (
     <g data-stage={kind}>
-      <BackOverlays geo={geo} signals={signals} />
-      <Plot kind={kind} signText={text} A={A} D={D} />
-      <FrontOverlays geo={geo} signals={signals} needsYouCount={needsYouCount} />
+      <Scaled o={scaleOrigin(variant)}>
+        <BackOverlays geo={geo} signals={signals} />
+        <Plot kind={kind} signText={text} A={A} D={D} />
+        <FrontOverlays geo={geo} signals={signals} needsYouCount={needsYouCount} />
+      </Scaled>
     </g>
   );
 }

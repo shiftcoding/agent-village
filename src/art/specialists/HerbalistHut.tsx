@@ -1,5 +1,5 @@
 import type { BuildingAnchors, RingBox } from '../contract';
-import { Box, C, LINE, iso } from '../buildings/iso';
+import { Box, C, LINE, iso, Scaled, scalePt, scaleRing } from '../buildings/iso';
 import { GabledHouse, roofPoint, thin } from './House';
 
 const A = 28;
@@ -14,14 +14,18 @@ export const HERBALIST_SPOTS: Array<{ x: number; y: number }> = [
   ...[-18, 6].map((a) => iso(0, 0, a, D + 34)),
 ];
 
-export const HERBALIST_ANCHORS: BuildingAnchors = {
+/** Scale origin: the ground at the foot of the front wall (T39 round 2: drawn 1.2x). */
+const O = iso(0, 0, 0, D);
+const K = 1.2;
+const RAW_ANCHORS: BuildingAnchors = {
   door: iso(0, 0, 0, D + 3),
   roof: iso(0, 0, 0, 0, H + RISE + 4),
   workSpots: HERBALIST_SPOTS,
 };
+export const HERBALIST_ANCHORS: BuildingAnchors = { door: scalePt(RAW_ANCHORS.door, O, K), roof: scalePt(RAW_ANCHORS.roof, O, K), workSpots: RAW_ANCHORS.workSpots };
 
 /** Focus ring box in local coords (hut, hanging herbs, garden beds and the characters in front). */
-export const HERBALIST_RING: RingBox = { x: -92, y: -112, w: 196, h: 206 };
+export const HERBALIST_RING: RingBox = scaleRing({ x: -92, y: -112, w: 196, h: 206 }, O, K, 100);
 
 const HERB = ['leaf', 'vine', 'c-sage', 'c-yellow', 'c-magenta', 'vine-dark'] as const;
 
@@ -83,7 +87,7 @@ function Bed({ a, b, kind }: { a: number; b: number; kind: number }): JSX.Elemen
  * a half door, a leaf sign and a herb garden of three raised beds on the right. Footprint centre (0,0); about
  * 170 wide, 140 tall. No smoke and no lit windows (those mean an "active project").
  */
-export function HerbalistHut(): JSX.Element {
+function HerbalistHutArt(): JSX.Element {
   const geo = { A, D, H, rise: RISE, over: OVER };
   const eave = (u: number): { x: number; y: number } => roofPoint(geo, u, 0);
   const bundles = [0.1, 0.24, 0.38, 0.62, 0.76, 0.9].map((u, i) => ({ ...eave(u), i }));
@@ -152,5 +156,13 @@ export function HerbalistHut(): JSX.Element {
       <Bed a={A + 30} b={0} kind={1} />
       <Bed a={A + 30} b={20} kind={0} />
     </g>
+  );
+}
+
+export function HerbalistHut(): JSX.Element {
+  return (
+    <Scaled k={K} o={O}>
+      <HerbalistHutArt />
+    </Scaled>
   );
 }

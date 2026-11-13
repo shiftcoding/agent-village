@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import { C, LINE } from './iso';
 
-const thin = { ...LINE, strokeWidth: 0.9 } as const;
+const thin = { ...LINE, strokeWidth: 0.95 } as const;
 
 /**
  * Opacity driven by the day-part token --va-lamp (0 by day and dawn, 0.8 at dusk, 1 at night; tokens.css).

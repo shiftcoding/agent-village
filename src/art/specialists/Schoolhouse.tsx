@@ -1,5 +1,5 @@
 import type { BuildingAnchors, RingBox } from '../contract';
-import { Box, C, LINE, iso } from '../buildings/iso';
+import { Box, C, LINE, iso, Scaled, scalePt, scaleRing } from '../buildings/iso';
 import { BellTurret, GabledHouse, thin } from './House';
 
 const A = 36;
@@ -13,14 +13,18 @@ export const SCHOOLHOUSE_SPOTS: Array<{ x: number; y: number }> = [
   ...[0, 24].map((a) => iso(0, 0, a, D + 34)),
 ];
 
-export const SCHOOLHOUSE_ANCHORS: BuildingAnchors = {
+/** Scale origin: the ground at the foot of the front wall (T39 round 2: drawn 1.25x). */
+const O = iso(0, 0, 0, D);
+const K = 1.25;
+const RAW_ANCHORS: BuildingAnchors = {
   door: iso(0, 0, 12, D + 3),
   roof: iso(0, 0, 0, 0, H + RISE + 30),
   workSpots: SCHOOLHOUSE_SPOTS,
 };
+export const SCHOOLHOUSE_ANCHORS: BuildingAnchors = { door: scalePt(RAW_ANCHORS.door, O, K), roof: scalePt(RAW_ANCHORS.roof, O, K), workSpots: RAW_ANCHORS.workSpots };
 
 /** Focus ring box in local coords (bell, slate board, building and the characters in front). */
-export const SCHOOLHOUSE_RING: RingBox = { x: -140, y: -140, w: 220, h: 240 };
+export const SCHOOLHOUSE_RING: RingBox = scaleRing({ x: -140, y: -109, w: 220, h: 209 }, O, K);
 
 function Window({ x, y }: { x: number; y: number }): JSX.Element {
   return (
@@ -58,7 +62,7 @@ function SlateBoard({ x, y }: { x: number; y: number }): JSX.Element {
  * a bell turret on the ridge and a slate board on legs beside it. Footprint centre (0,0); about 190 wide, 170 tall.
  * No smoke and no lit windows (those mean an "active project").
  */
-export function Schoolhouse(): JSX.Element {
+function SchoolhouseArt(): JSX.Element {
   const doorA = 12;
   const fx = A + doorA; // door centre on the face
   return (
@@ -112,5 +116,13 @@ export function Schoolhouse(): JSX.Element {
         }
       />
     </g>
+  );
+}
+
+export function Schoolhouse(): JSX.Element {
+  return (
+    <Scaled k={K} o={O}>
+      <SchoolhouseArt />
+    </Scaled>
   );
 }

@@ -25,10 +25,10 @@ function grassClumps(): { dark: string; light: string; speck: string } {
   let dark = '';
   let light = '';
   let speck = '';
-  for (let i = 0; i < 46; i++) {
+  for (let i = 0; i < 64; i++) {
     const x = r() * 160;
     const y = 8 + r() * 150;
-    const h = 4 + r() * 5;
+    const h = 5 + r() * 7;
     const lean = (r() - 0.5) * 4;
     const d = `M${x.toFixed(1)},${y.toFixed(1)} q${(lean * 0.4).toFixed(1)},${(-h * 0.6).toFixed(1)} ${lean.toFixed(1)},${(-h).toFixed(1)} M${(x + 2.2).toFixed(1)},${y.toFixed(1)} q${(lean * 0.2).toFixed(1)},${(-h * 0.5).toFixed(1)} ${(lean * 0.5 + 1).toFixed(1)},${(-h * 0.8).toFixed(1)}`;
     if (i % 3 === 0) light += d;
@@ -39,8 +39,17 @@ function grassClumps(): { dark: string; light: string; speck: string } {
 }
 
 function flowerDots(): Array<{ x: number; y: number; k: 1 | 2 | 3 }> {
+  /* five little clusters of four to six flowers per 320 unit tile (meadow flower patches) */
   const r = rng(31);
-  return Array.from({ length: 9 }, (_, i) => ({ x: 20 + r() * 280, y: 20 + r() * 280, k: ((i % 3) + 1) as 1 | 2 | 3 }));
+  const out: Array<{ x: number; y: number; k: 1 | 2 | 3 }> = [];
+  for (let c = 0; c < 5; c++) {
+    const cx = 30 + r() * 260;
+    const cy = 30 + r() * 260;
+    const kind = ((c % 3) + 1) as 1 | 2 | 3;
+    const n = 4 + Math.floor(r() * 3);
+    for (let i = 0; i < n; i++) out.push({ x: cx + (r() - 0.5) * 30, y: cy + (r() - 0.5) * 18, k: i % 4 === 3 ? (((kind % 3) + 1) as 1 | 2 | 3) : kind });
+  }
+  return out;
 }
 
 function dirtSpecks(): { dark: string; light: string } {
@@ -83,6 +92,7 @@ export const ART_DEF_IDS = [
   'va-g-cloth',
   'va-g-lampglow',
   'va-g-flame',
+  'va-g-glass',
   'va-p-grass',
   'va-p-mottle',
   'va-p-flowers',
@@ -104,6 +114,17 @@ const hi = (k: number) => ({ stopColor: 'var(--va-highlight)', stopOpacity: `cal
 const sh = (k: number) => ({ stopColor: 'var(--va-shade)', stopOpacity: `calc(var(--va-shade-opacity) * ${k})` });
 const ao = (k: number) => ({ stopColor: 'var(--va-shadow)', stopOpacity: `calc(var(--va-ao-opacity) * ${k})` });
 
+/** An ellipse repeated across the 400 unit tile edges it crosses, so a pattern tile has no straight cut. */
+function Patch({ cx, cy, rx, ry, fill, op }: { cx: number; cy: number; rx: number; ry: number; fill: string; op: number }): JSX.Element {
+  const xs = [0, ...(cx - rx < 0 ? [400] : []), ...(cx + rx > 400 ? [-400] : [])];
+  const ys = [0, ...(cy - ry < 0 ? [400] : []), ...(cy + ry > 400 ? [-400] : [])];
+  return (
+    <g>
+      {xs.flatMap((dx) => ys.map((dy) => <ellipse key={`${dx},${dy}`} cx={cx + dx} cy={cy + dy} rx={rx} ry={ry} fill={fill} fillOpacity={op} />))}
+    </g>
+  );
+}
+
 export function ArtDefs(): JSX.Element {
   return (
     <defs>
@@ -124,8 +145,8 @@ export function ArtDefs(): JSX.Element {
       </radialGradient>
       {/* left (lit) faces and roof planes: sheen from the top left */}
       <linearGradient id="va-g-lit" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" style={hi(1)} />
-        <stop offset="0.55" style={hi(0.25)} />
+        <stop offset="0" style={hi(1.25)} />
+        <stop offset="0.5" style={hi(0.42)} />
         <stop offset="1" stopColor="var(--va-highlight)" stopOpacity={0} />
       </linearGradient>
       {/* right (shaded) faces: darker towards the bottom */}
@@ -135,17 +156,19 @@ export function ArtDefs(): JSX.Element {
       </linearGradient>
       {/* ambient occlusion: where a wall meets the ground, under eaves, in the inner corner */}
       <linearGradient id="va-g-ao-base" x1="0" y1="1" x2="0" y2="0">
-        <stop offset="0" style={ao(1)} />
-        <stop offset="0.3" style={ao(0.28)} />
-        <stop offset="0.6" stopColor="var(--va-shadow)" stopOpacity={0} />
+        <stop offset="0" style={ao(1.5)} />
+        <stop offset="0.18" style={ao(0.7)} />
+        <stop offset="0.45" style={ao(0.18)} />
+        <stop offset="0.7" stopColor="var(--va-shadow)" stopOpacity={0} />
       </linearGradient>
       <linearGradient id="va-g-ao-top" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" style={ao(0.75)} />
-        <stop offset="0.22" stopColor="var(--va-shadow)" stopOpacity={0} />
+        <stop offset="0" style={ao(1.25)} />
+        <stop offset="0.14" style={ao(0.5)} />
+        <stop offset="0.3" stopColor="var(--va-shadow)" stopOpacity={0} />
       </linearGradient>
       <linearGradient id="va-g-corner" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0.82" stopColor="var(--va-shadow)" stopOpacity={0} />
-        <stop offset="1" style={ao(0.7)} />
+        <stop offset="0.7" stopColor="var(--va-shadow)" stopOpacity={0} />
+        <stop offset="1" style={ao(1.1)} />
       </linearGradient>
       {/* soft contact shadow under buildings and characters */}
       <radialGradient id="va-g-contact" cx="50%" cy="50%" r="50%">
@@ -175,37 +198,51 @@ export function ArtDefs(): JSX.Element {
         <stop offset="1" stopColor="var(--va-glow)" />
       </radialGradient>
 
+      {/* window glass: a warm reflection from the top left fading out (drawn over the flat glass colour) */}
+      <linearGradient id="va-g-glass" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stopColor="var(--va-glow)" stopOpacity={0.85} />
+        <stop offset="0.42" stopColor="var(--va-glow)" stopOpacity={0.4} />
+        <stop offset="0.43" stopColor="var(--va-shadow)" stopOpacity={0.12} />
+        <stop offset="1" stopColor="var(--va-shadow)" stopOpacity={0.4} />
+      </linearGradient>
+
       {/* ---------- ground patterns ---------- */}
       <pattern id="va-p-grass" width="160" height="160" patternUnits="userSpaceOnUse">
         <g fill="none" strokeLinecap="round">
-          <path d={CLUMPS.dark} stroke="var(--va-grass-2)" strokeWidth="1.5" style={TEX_DARK} />
-          <path d={CLUMPS.light} stroke="var(--va-grass-3)" strokeWidth="1.5" style={TEX_LIGHT} />
+          <path d={CLUMPS.dark} stroke="var(--va-grass-2)" strokeWidth="2" style={TEX_DARK} />
+          <path d={CLUMPS.light} stroke="var(--va-grass-3)" strokeWidth="2" style={TEX_LIGHT} />
           <path d={CLUMPS.dark} stroke="var(--va-grass-3)" strokeWidth="1.1" strokeOpacity="0.8" transform="translate(-1.2 -0.6)" style={TEX_LIGHT} />
           <path d={CLUMPS.speck} stroke="var(--va-shade)" strokeOpacity="0.35" strokeWidth="1.2" style={TEX_DARK} />
         </g>
       </pattern>
-      {/* big soft painterly patches so the meadow is not one flat colour */}
+      {/* big painterly patches (T39: bolder, three families): light meadow, deep shade green, and warm dry straw.
+          Each patch is repeated across the tile edges (see Patch), so the tiling never shows a straight cut. */}
       <pattern id="va-p-mottle" width="400" height="400" patternUnits="userSpaceOnUse">
         <g style={TEX_LIGHT}>
-          <ellipse cx="70" cy="80" rx="90" ry="46" fill="var(--va-grass-3)" fillOpacity="0.3" />
-          <ellipse cx="180" cy="300" rx="110" ry="50" fill="var(--va-grass-3)" fillOpacity="0.26" />
-          <ellipse cx="350" cy="130" rx="60" ry="30" fill="var(--va-grass-3)" fillOpacity="0.24" />
+          <Patch cx={70} cy={80} rx={96} ry={48} fill="var(--va-grass-3)" op={0.55} />
+          <Patch cx={180} cy={300} rx={118} ry={54} fill="var(--va-grass-3)" op={0.5} />
+          <Patch cx={350} cy={130} rx={64} ry={32} fill="var(--va-grass-3)" op={0.45} />
+          <Patch cx={300} cy={380} rx={70} ry={26} fill="var(--va-thatch)" op={0.2} />
+          <Patch cx={30} cy={190} rx={62} ry={24} fill="var(--va-thatch)" op={0.17} />
         </g>
         <g style={TEX_DARK}>
-          <ellipse cx="270" cy="140" rx="70" ry="38" fill="var(--va-grass-2)" fillOpacity="0.3" />
-          <ellipse cx="350" cy="350" rx="50" ry="28" fill="var(--va-grass-2)" fillOpacity="0.26" />
-          <ellipse cx="20" cy="260" rx="60" ry="30" fill="var(--va-grass-2)" fillOpacity="0.22" />
+          <Patch cx={270} cy={140} rx={78} ry={40} fill="var(--va-grass-2)" op={0.55} />
+          <Patch cx={350} cy={350} rx={56} ry={30} fill="var(--va-grass-2)" op={0.5} />
+          <Patch cx={20} cy={260} rx={66} ry={32} fill="var(--va-grass-2)" op={0.45} />
+          <Patch cx={120} cy={190} rx={50} ry={22} fill="var(--va-leaf)" op={0.4} />
+          <Patch cx={230} cy={40} rx={46} ry={20} fill="var(--va-leaf)" op={0.36} />
         </g>
       </pattern>
       <pattern id="va-p-flowers" width="320" height="320" patternUnits="userSpaceOnUse">
-        <g style={{ opacity: 'calc(var(--va-tex-opacity) * var(--va-tex-light) * 0.7)' }}>
+        <g style={{ opacity: 'calc(var(--va-tex-opacity) * 0.95)' }}>
           {FLOWERS.map((f, i) => (
             <g key={i} transform={`translate(${f.x.toFixed(1)} ${f.y.toFixed(1)})`}>
-              <circle r="1.7" cx="-1.8" fill={`var(--va-flower-${f.k})`} />
-              <circle r="1.7" cx="1.8" fill={`var(--va-flower-${f.k})`} />
-              <circle r="1.7" cy="-1.8" fill={`var(--va-flower-${f.k})`} />
-              <circle r="1.7" cy="1.8" fill={`var(--va-flower-${f.k})`} />
-              <circle r="1" fill="var(--va-flower-3)" />
+              <path d="M0,0 l-1,4 M0,0 l1.4,3.6" stroke="var(--va-grass-2)" strokeWidth="1.1" strokeLinecap="round" />
+              <circle r="1.9" cx="-2" fill={`var(--va-flower-${f.k})`} />
+              <circle r="1.9" cx="2" fill={`var(--va-flower-${f.k})`} />
+              <circle r="1.9" cy="-2" fill={`var(--va-flower-${f.k})`} />
+              <circle r="1.9" cy="2" fill={`var(--va-flower-${f.k})`} />
+              <circle r="1.15" fill="var(--va-flower-3)" />
             </g>
           ))}
         </g>
@@ -267,34 +304,40 @@ export function ArtDefs(): JSX.Element {
         </g>
       </pattern>
 
-      {/* ---------- roof patterns: rows skewed onto the roof plane ---------- */}
       <pattern id="va-p-thatch" width="20" height="14" patternUnits="userSpaceOnUse" patternTransform={ROOF_SKEW}>
         <g style={TEX} fill="none" strokeLinecap="round">
-          <path d="M0,0.6 H20" stroke="var(--va-thatch-dark)" strokeWidth="1.2" strokeOpacity="0.8" />
-          <path d="M2,1 L3.4,13 M6,1 L7,13 M10,1 L11.6,13 M14,1 L15,13 M18,1 L19.4,13" stroke="var(--va-thatch-dark)" strokeWidth="0.8" strokeOpacity="0.55" />
-          <path d="M4,2 L5,12 M8.4,2 L9.2,12 M12.2,2 L13.4,12 M16.4,2 L17.4,12" stroke="var(--va-highlight)" strokeWidth="0.9" strokeOpacity="0.5" />
+          <rect x="0" y="10" width="20" height="4" fill="var(--va-thatch-dark)" fillOpacity="0.72" stroke="none" />
+          <rect x="0" y="0" width="20" height="2" fill="var(--va-highlight)" fillOpacity="0.35" stroke="none" />
+          <path d="M0,13.4 H20" stroke="var(--va-thatch-dark)" strokeWidth="1.8" strokeOpacity="0.95" />
+          <path d="M2,1 L3.4,13 M6,1 L7,13 M10,1 L11.6,13 M14,1 L15,13 M18,1 L19.4,13" stroke="var(--va-thatch-dark)" strokeWidth="1" strokeOpacity="0.7" />
+          <path d="M4,2 L5,11 M8.4,2 L9.2,11 M12.2,2 L13.4,11 M16.4,2 L17.4,11" stroke="var(--va-highlight)" strokeWidth="1.1" strokeOpacity="0.6" />
         </g>
       </pattern>
       <pattern id="va-p-tiles" width="18" height="12" patternUnits="userSpaceOnUse" patternTransform={ROOF_SKEW}>
         <g style={TEX} fill="none" strokeLinecap="round">
-          <path d="M0,6 Q4.5,0.5 9,6 Q13.5,0.5 18,6" stroke="var(--va-roof-dark)" strokeWidth="1.2" strokeOpacity="0.8" />
-          <path d="M-4.5,12 Q0,6.5 4.5,12 Q9,6.5 13.5,12 Q18,6.5 22.5,12" stroke="var(--va-roof-dark)" strokeWidth="1.2" strokeOpacity="0.8" />
-          <path d="M1.5,4.6 Q4.5,1.6 7.5,4.6 M10.5,4.6 Q13.5,1.6 16.5,4.6" stroke="var(--va-highlight)" strokeWidth="0.9" strokeOpacity="0.5" />
+          <path d="M0,6 Q4.5,0.5 9,6 Q13.5,0.5 18,6 L18,9 L0,9 Z" fill="var(--va-roof-dark)" fillOpacity="0.6" stroke="none" />
+          <path d="M-4.5,12 Q0,6.5 4.5,12 Q9,6.5 13.5,12 Q18,6.5 22.5,12 L22.5,15 L-4.5,15 Z" fill="var(--va-roof-dark)" fillOpacity="0.6" stroke="none" />
+          <path d="M0,6 Q4.5,0.5 9,6 Q13.5,0.5 18,6" stroke="var(--va-roof-dark)" strokeWidth="1.7" strokeOpacity="0.95" />
+          <path d="M-4.5,12 Q0,6.5 4.5,12 Q9,6.5 13.5,12 Q18,6.5 22.5,12" stroke="var(--va-roof-dark)" strokeWidth="1.7" strokeOpacity="0.95" />
+          <path d="M1.5,4.6 Q4.5,1.6 7.5,4.6 M10.5,4.6 Q13.5,1.6 16.5,4.6" stroke="var(--va-highlight)" strokeWidth="1.1" strokeOpacity="0.65" />
         </g>
       </pattern>
       <pattern id="va-p-slate" width="16" height="10" patternUnits="userSpaceOnUse" patternTransform={ROOF_SKEW}>
         <g style={TEX} fill="none" strokeLinecap="round">
-          <path d="M0,5 H16 M0,10 H16" stroke="var(--va-slate-dark)" strokeWidth="1.1" strokeOpacity="0.85" />
-          <path d="M8,0 V5 M0,5 V10 M16,5 V10" stroke="var(--va-slate-dark)" strokeWidth="0.9" strokeOpacity="0.7" />
-          <path d="M1,1 H7 M9,1 H15 M-7,6 H-1 M1,6 H7 M9,6 H15" stroke="var(--va-highlight)" strokeWidth="0.8" strokeOpacity="0.4" />
+          <rect x="0" y="3" width="16" height="2" fill="var(--va-slate-dark)" fillOpacity="0.62" stroke="none" />
+          <rect x="0" y="8" width="16" height="2" fill="var(--va-slate-dark)" fillOpacity="0.62" stroke="none" />
+          <path d="M0,5 H16 M0,10 H16" stroke="var(--va-slate-dark)" strokeWidth="1.5" strokeOpacity="0.95" />
+          <path d="M8,0 V5 M0,5 V10 M16,5 V10" stroke="var(--va-slate-dark)" strokeWidth="1.1" strokeOpacity="0.8" />
+          <path d="M1,1 H7 M9,1 H15 M-7,6 H-1 M1,6 H7 M9,6 H15" stroke="var(--va-highlight)" strokeWidth="1" strokeOpacity="0.55" />
         </g>
       </pattern>
-      {/* mirrored slate for roof planes that rise to the right (town hall wing) */}
       <pattern id="va-p-slate-r" width="16" height="10" patternUnits="userSpaceOnUse" patternTransform="skewY(-26.565)">
         <g style={TEX} fill="none" strokeLinecap="round">
-          <path d="M0,5 H16 M0,10 H16" stroke="var(--va-slate-dark)" strokeWidth="1.1" strokeOpacity="0.85" />
-          <path d="M8,0 V5 M0,5 V10 M16,5 V10" stroke="var(--va-slate-dark)" strokeWidth="0.9" strokeOpacity="0.7" />
-          <path d="M1,1 H7 M9,1 H15 M-7,6 H-1 M1,6 H7 M9,6 H15" stroke="var(--va-highlight)" strokeWidth="0.8" strokeOpacity="0.4" />
+          <rect x="0" y="3" width="16" height="2" fill="var(--va-slate-dark)" fillOpacity="0.62" stroke="none" />
+          <rect x="0" y="8" width="16" height="2" fill="var(--va-slate-dark)" fillOpacity="0.62" stroke="none" />
+          <path d="M0,5 H16 M0,10 H16" stroke="var(--va-slate-dark)" strokeWidth="1.5" strokeOpacity="0.95" />
+          <path d="M8,0 V5 M0,5 V10 M16,5 V10" stroke="var(--va-slate-dark)" strokeWidth="1.1" strokeOpacity="0.8" />
+          <path d="M1,1 H7 M9,1 H15 M-7,6 H-1 M1,6 H7 M9,6 H15" stroke="var(--va-highlight)" strokeWidth="1" strokeOpacity="0.55" />
         </g>
       </pattern>
     </defs>

@@ -328,7 +328,7 @@ const DIRS: Array<[number, number]> = [
 export function layoutTags(chars: PlacedChar[], font: number, measure: Measure, obstacles: Box[], bounds = { w: SCENE.width, h: SCENE.height }, showLevel = false): TagLayout[] {
   const f2 = Math.round(font * 0.94);
   const h = font + f2 + 12;
-  const bodies: Array<{ key: string; box: Box }> = chars.map((c) => ({ key: c.key, box: { x: c.x - c.width / 2, y: c.y - 62, w: c.width, h: 66 } }));
+  const bodies: Array<{ key: string; box: Box }> = chars.map((c) => ({ key: c.key, box: { x: c.x - c.width / 2, y: c.y - 74, w: c.width, h: 78 } }));
   const sized = chars.map((c) => {
     const line1 = c.agent.name;
     const line2 = tagStateText(c.agent);

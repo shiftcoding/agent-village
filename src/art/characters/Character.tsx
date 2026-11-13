@@ -2,6 +2,9 @@ import type { CharacterArtProps, Pose } from '../contract';
 import { LOOKS } from './looks';
 import { Arm, Face, FlipContext, Hair, O, Torso, shadeStyle, v } from './parts';
 
+/** T39: figures are drawn 14 % bigger than the 64 unit design height (feet stay at 0,0), so classes read at laptop size. */
+export const CHAR_SCALE = 1.14;
+
 /** Hand positions per pose: [right hand, left hand] in figure coordinates (feet at 0,0). */
 const HANDS: Record<Pose, { r: [number, number]; l: [number, number] }> = {
   stand: { r: [13, -22], l: [-12, -22] },
@@ -29,7 +32,7 @@ export function AlertMark({ y = -88 }: { y?: number }): JSX.Element {
 
 function Zzz(): JSX.Element {
   return (
-    <g transform="translate(9 -66)" fontFamily="Georgia, serif" fontWeight={700} fill={v('c-cream')} stroke={v('outline')} strokeWidth={0.5}>
+    <g transform="translate(10 -76)" fontFamily="Georgia, serif" fontWeight={700} fill={v('c-cream')} stroke={v('outline')} strokeWidth={0.5}>
       <text className="va-zzz va-zzz-1" x={0} y={0} fontSize={12}>
         z
       </text>
@@ -104,7 +107,9 @@ export function Character({ villageClass, pose, alert, sleepy, mug, flip }: Char
             <Arm from={[9, -38]} to={hands.r} sleeve={sleeve} skin={skin} />
             {look.held && (
               <g transform={`translate(${hands.r[0]} ${hands.r[1]})`}>
-                <g className={`va-w-${look.anim}`}>{look.held}</g>
+                <g transform="scale(1.2)">
+                  <g className={`va-w-${look.anim}`}>{look.held}</g>
+                </g>
               </g>
             )}
           </g>
@@ -114,14 +119,15 @@ export function Character({ villageClass, pose, alert, sleepy, mug, flip }: Char
   );
   return (
     <g aria-hidden="true" className={`va-char va-pose-${pose} va-class-${villageClass}`}>
+      <ellipse cx={11} cy={3} rx={21} ry={5.2} fill="var(--va-shadow)" style={{ fillOpacity: 'calc(var(--va-shadow-opacity) * 0.7)' }} />
       <ellipse cx={3} cy={1} rx={19} ry={5.6} fill="url(#va-g-contact)" />
       <ellipse cx={0} cy={0.6} rx={11} ry={3} fill="url(#va-g-contact)" />
       {/* Only the figure mirrors. Held items mirror with it (they swap hands); the stranger's "?" un-mirrors itself; zzz and "!" sit outside the mirror. */}
-      <g transform={flip ? 'scale(-1 1)' : undefined}>
+      <g transform={flip ? `scale(${-CHAR_SCALE} ${CHAR_SCALE})` : `scale(${CHAR_SCALE})`}>
         <FlipContext.Provider value={!!flip}>{figure}</FlipContext.Provider>
       </g>
       {sleepy && <Zzz />}
-      {alert && <AlertMark />}
+      {alert && <AlertMark y={-98} />}
     </g>
   );
 }
