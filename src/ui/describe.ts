@@ -42,7 +42,7 @@ function agentTipBase(a: Agent, village: Village): string {
   const extra = a.hasBlocked && a.state !== 'blocked' ? ' Has a blocked task.' : '';
   const personas = a.personas?.length ? ` Troupe of ${a.personas.length}: ${a.personas.join(', ')}.` : '';
   if (a.state === 'idle') {
-    const base = a.location.kind === 'tavern' ? `resting at ${where}${a.sleepy ? ', asleep (no log line for 24 hours)' : ''}` : `no open tasks, standing at ${where}`;
+    const base = a.location.kind === 'tavern' ? `resting inside ${where}${a.sleepy ? ', asleep (no log line for 24 hours)' : ''}` : `no open tasks, standing at ${where}`;
     const note = a.note && a.location.kind === 'tavern' ? ` ${a.note.replace(/\.$/, '')}.` : '';
     return `${head}: ${base}.${extra}${note}${personas}`;
   }

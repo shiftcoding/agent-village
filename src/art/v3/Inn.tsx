@@ -23,6 +23,25 @@ function Vine({ x, h }: { x: number; h: number }): JSX.Element {
   );
 }
 
+/** T48: a standing board in front of the inn with how many agents are inside (text plus a mug, never colour alone). */
+function GuestBoard({ text }: { text: string }): JSX.Element {
+  return (
+    <g>
+      <ellipse cx={6} cy={2} rx={30} ry={5} fill="var(--va-shadow)" style={{ fillOpacity: 'calc(var(--va-shadow-opacity) * 0.8)' }} />
+      <path d="M-20,0 L-17,-22 M20,0 L17,-22" stroke="var(--va-outline)" strokeWidth={3.4} strokeLinecap="round" />
+      <path d="M-20,0 L-17,-22 M20,0 L17,-22" stroke={C('wood-dark')} strokeWidth={2} strokeLinecap="round" />
+      <rect x={-40} y={-44} width={80} height={24} rx={3} fill={C('sign')} stroke="var(--va-outline)" strokeWidth={1.4} />
+      <rect x={-37} y={-41} width={74} height={18} rx={2} fill={C('parchment')} stroke="var(--va-outline)" strokeWidth={0.8} />
+      <g transform="translate(-28 -32) scale(0.62)">
+        <Mug />
+      </g>
+      <text x={-19} y={-27.5} fontSize={13} fontWeight={700} textAnchor="start" fill={C('ink')} fontFamily="system-ui, sans-serif">
+        {text}
+      </text>
+    </g>
+  );
+}
+
 function Mug(): JSX.Element {
   return (
     <g>
@@ -39,7 +58,10 @@ function Mug(): JSX.Element {
  * roof with a dormer and two chimneys, shuttered windows with flower boxes, a hanging sign, barrels, a hay cart and a
  * kitchen garden. Windows are lamp-lit at dusk and night (civic building, like the current tavern).
  */
-export function Inn(): JSX.Element {
+export function Inn({ inside, sleepers = 0 }: { inside?: number; sleepers?: number } = {}): JSX.Element {
+  const guests = inside ?? 0;
+  /** Windows that show a figure, in order: ground floor, then the upper floor. */
+  const fig = (k: number): boolean => k < guests;
   const tableAt = iso(0, 0, 0, D + 24);
   return (
     <g>
@@ -53,12 +75,12 @@ export function Inn(): JSX.Element {
         <Stones w={2 * A} h={G} seed={11} />
         <Vine x={2 * A - 8} h={G - 4} />
         <Door x={A} w={17} h={25} />
-        <Window x={22} y={-15} w={13} h={13} shutters="c-forest" box lit />
-        <Window x={2 * A - 22} y={-15} w={13} h={13} shutters="c-forest" box lit />
+        <Window x={22} y={-15} w={13} h={13} shutters="c-forest" box lit figure={fig(0)} />
+        <Window x={2 * A - 22} y={-15} w={13} h={13} shutters="c-forest" box lit figure={fig(1)} />
       </g>
       <g transform={rightFaceTf(0, 0, A, D)}>
         <Stones w={2 * D} h={G} seed={12} />
-        <Window x={D} y={-15} w={12} h={13} shutters="c-forest" lit />
+        <Window x={D} y={-15} w={12} h={13} shutters="c-forest" lit figure={fig(5)} />
         <rect x={0} y={-G} width={2 * D} height={G} fill="var(--va-shade)" style={SHADE_OPACITY} />
       </g>
       {/* upper floor: plaster and timber, jettied out over the ground floor */}
@@ -66,7 +88,7 @@ export function Inn(): JSX.Element {
       <g transform={leftFaceTf(0, 0, A + J, D + J, G)}>
         <TimberFrame w={2 * (A + J)} h={U2} posts={[18, 40, 76, 98]} rails={[-6]} braces={[[0, 18, 'up'], [98, 2 * (A + J), 'down']]} />
         {[29, 58, 87].map((x, i) => (
-          <Window key={x} x={x} y={-17} w={12} h={14} box={i !== 1} lit />
+          <Window key={x} x={x} y={-17} w={12} h={14} box={i !== 1} lit figure={fig(2 + i)} />
         ))}
         {/* joist ends under the jetty */}
         {Array.from({ length: 14 }, (_, k) => (
@@ -104,6 +126,13 @@ export function Inn(): JSX.Element {
       <Dormer g={ROOF} a={-4} w={9} bd={28} hd={13} gr={8} roof="roof" edge="roof-dark" wall="plaster">
         <Window x={0} y={-6.5} w={8} h={9} lit />
       </Dormer>
+      {sleepers > 0 && (
+        <g transform={`translate(${iso(0, 0, -4, 30, 104).x + 4} ${iso(0, 0, -4, 30, 104).y})`} fontFamily="Georgia, serif" fontWeight={700} fill={C('c-cream')} stroke="var(--va-outline)" strokeWidth={0.5} aria-hidden="true">
+          <text className="va-zzz va-zzz-1" x={0} y={0} fontSize={12}>z</text>
+          <text className="va-zzz va-zzz-2" x={6} y={-7} fontSize={13}>z</text>
+          <text className="va-zzz va-zzz-3" x={13} y={-15} fontSize={14}>z</text>
+        </g>
+      )}
       {/* hanging sign from the jetty, beside the door */}
       <g transform={`translate(${iso(0, 0, -46, D + J, G + 2).x} ${iso(0, 0, -46, D + J, G + 2).y})`}>
         <HangingSign icon={<Mug />} reach={16} />
@@ -139,6 +168,11 @@ export function Inn(): JSX.Element {
       <g transform={`translate(${iso(0, 0, 0, D + 38).x} ${iso(0, 0, 0, D + 38).y})`}>
         <Bench len={58} />
       </g>
+      {inside !== undefined && (
+        <g transform={`translate(${iso(0, 0, 52, D + 30).x} ${iso(0, 0, 52, D + 30).y})`}>
+          <GuestBoard text={guests === 0 ? 'Empty' : `${guests} inside`} />
+        </g>
+      )}
     </g>
   );
 }

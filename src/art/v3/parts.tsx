@@ -301,7 +301,7 @@ function glassPath(shape: WindowShape, w: number, h: number): string {
  * A window centred at (x, y): frame, glass with a sheen, mullions, a stone sill; optional painted shutters and a
  * flower box. `lit` lays the lamp-lit glass over it at dusk and night (civic buildings only, like LitPane).
  */
-export function Window({ x, y, w = 12, h = 15, shape = 'square', frame = 'wood-dark', shutters, box, lit = false }: { x: number; y: number; w?: number; h?: number; shape?: WindowShape; frame?: string; shutters?: string; box?: boolean; lit?: boolean }): JSX.Element {
+export function Window({ x, y, w = 12, h = 15, shape = 'square', frame = 'wood-dark', shutters, box, lit = false, figure = false }: { x: number; y: number; w?: number; h?: number; shape?: WindowShape; frame?: string; shutters?: string; box?: boolean; lit?: boolean; figure?: boolean }): JSX.Element {
   const glass = glassPath(shape, w, h);
   const outer = glassPath(shape, w + 4.4, h + 4.4);
   return (
@@ -323,6 +323,13 @@ export function Window({ x, y, w = 12, h = 15, shape = 'square', frame = 'wood-d
       <path d={glass} fill={U('g-glass')} />
       {lit && <path d={glass} fill={C('glow')} fillOpacity={0.35} transform="scale(1.35)" style={LAMP_STYLE} />}
       {lit && <path d={glass} className="va-window-lit" fill={C('window-lit')} style={LAMP_STYLE} />}
+      {/* someone inside: head and shoulders seen through the glass */}
+      {figure && (
+        <g fill="var(--va-outline)" fillOpacity={0.62} pointerEvents="none">
+          <circle cx={w * 0.12} cy={h * 0.02} r={Math.min(w, h) * 0.2} />
+          <path d={`M${-w * 0.32},${h / 2} Q${-w * 0.3},${h * 0.2} ${w * 0.12},${h * 0.2} Q${w * 0.52},${h * 0.2} ${w * 0.5},${h / 2} Z`} />
+        </g>
+      )}
       {shape === 'round' ? (
         <path d={`M${-w / 2},0 L${w / 2},0 M0,${-h / 2} L0,${h / 2} M${-w * 0.35},${-h * 0.35} L${w * 0.35},${h * 0.35} M${w * 0.35},${-h * 0.35} L${-w * 0.35},${h * 0.35}`} stroke={C(frame)} strokeWidth={1.1} />
       ) : (

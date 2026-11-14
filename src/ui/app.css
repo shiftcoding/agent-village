@@ -74,6 +74,12 @@ input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--va-accen
 @media (prefers-reduced-motion: no-preference) {
   :root:not([data-motion="reduce"]) .va-tag { transition: opacity 0.25s ease-out; }
 }
+/* T48: a character who reached the tavern door goes inside (fades out; instant under reduced motion) */
+.va-sprite { opacity: 1; }
+.va-sprite.va-inside { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  :root:not([data-motion="reduce"]) .va-sprite { transition: opacity 0.35s ease-out; }
+}
 .va-level-bg { fill: var(--va-accent); }
 .va-level-text { fill: var(--va-on-accent); }
 .va-daypart { display: flex; align-items: center; gap: 8px; margin: 4px 0 8px; font-weight: 600; }

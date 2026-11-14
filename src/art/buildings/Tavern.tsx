@@ -1,4 +1,4 @@
-import type { BuildingAnchors } from '../contract';
+import type { BuildingAnchors, TavernArtProps } from '../contract';
 import { Inn } from '../v3/Inn';
 import { iso } from './iso';
 
@@ -24,7 +24,9 @@ export const TAVERN_ANCHORS: BuildingAnchors = {
  * with a dormer and two chimneys, hanging mug sign, barrels, hay cart and kitchen garden, and the long table with two
  * benches in front where agents sit. At dusk and night its windows are lamp-lit (token --va-lamp): the tavern is a
  * civic place, not a project, so this is time of day, never the Active signal. Footprint centre at (0,0).
+ * T48: idle agents rest inside; `inside` shows on a plank under the sign ("3 inside", "Empty") and as figures in
+ * the windows, and `sleepers` adds a drifting zzz above the dormer (still under reduced motion).
  */
-export function Tavern(): JSX.Element {
-  return <Inn />;
+export function Tavern({ inside, sleepers }: TavernArtProps = {}): JSX.Element {
+  return <Inn inside={inside} sleepers={sleepers} />;
 }

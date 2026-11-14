@@ -6,7 +6,7 @@ import { CopyPromptButton } from './CopyPromptButton';
 import { agentPrompt, needsYouKeys, needsYouLabel, needsYouPrompt } from './answerPrompt';
 import { placeName } from './describe';
 import { BUILDING_LABEL, CLASS_LABEL, PLACE_LABEL, STAGE_LABEL, STOP_LABEL, buildingName, fmtEpoch, fmtStamp, sortHealth, taskKey, tagStateText, xpSourceText } from './format';
-import { agentOfPlace } from './layout';
+import { agentOfPlace, tavernGuests } from './layout';
 import type { PanelId } from './panelTypes';
 
 export interface PanelContent {
@@ -484,7 +484,7 @@ export function buildPanel(panel: PanelId, village: Village, xp: boolean): Panel
     case 'place': {
       if (panel.id !== 'gatehouse' && panel.id !== 'tavern') return specialistPanel(panel.id, village);
       const kind = panel.id;
-      const here = village.agents.filter((a) => a.location.kind === kind);
+      const here = kind === 'tavern' ? tavernGuests(village) : village.agents.filter((a) => a.location.kind === kind);
       return {
         title: kind === 'gatehouse' ? 'Gatehouse' : 'Tavern',
         body: (
@@ -492,7 +492,7 @@ export function buildPanel(panel: PanelId, village: Village, xp: boolean): Panel
             <p className="va-muted">
               {kind === 'gatehouse'
                 ? 'The paladin (code-reviewer) checks everything. Agents with a task in review wait here.'
-                : 'Agents with no open tasks rest here. A "zzz" means no log line from that agent for 24 hours.'}
+                : 'Agents with no open tasks rest inside the tavern, so they do not crowd the square. The sign shows how many are inside. "zzz" means no log line from that agent for 24 hours.'}
             </p>
             {here.length === 0 ? (
               <p>Nobody is here.</p>

@@ -43,7 +43,7 @@ import type { DayPartName } from '../data/daylight';
 import { agentTip, needsYouTip, pipelineStopTip, projectTip, specialistTip } from './describe';
 import { CLASS_LABEL, fmtStamp, taskKey, truncate } from './format';
 import { FIREWORKS_MS, GrowthController, releasedKey, shouldFireworks } from './growth';
-import { layoutTags, placeCharacters, projectSpotsOf, structures, type Box, type PlacedChar, type Structure, type TagLayout } from './layout';
+import { layoutTags, placeCharacters, projectSpotsOf, structures, tavernGuests, type Box, type PlacedChar, type Structure, type TagLayout } from './layout';
 import { measureText, UI_FONT } from './measure';
 import type { OpenPanel, PanelId } from './panelTypes';
 import { activeStops, pipelineTrackPoints } from './pipelineRoute';
@@ -610,7 +610,9 @@ function SceneView({ village, onOpen, xp, dayPart, reduced, selectedAgent }: Sce
     ],
     [pills, carts, cardH, cardW, blockCard],
   );
-  const tags = useMemo(() => layoutTags(chars, font, measureText, obstacles, undefined, xp), [chars, font, obstacles, xp]);
+  // T48: agents inside the tavern have no name tag
+  const outside = useMemo(() => chars.filter((c) => !c.inside), [chars]);
+  const tags = useMemo(() => layoutTags(outside, font, measureText, obstacles, undefined, xp), [outside, font, obstacles, xp]);
   const slots = useMemo(() => noteSlots(village), [village]);
 
   const needsTip = needsYouTip(village);
@@ -714,10 +716,13 @@ function SceneView({ village, onOpen, xp, dayPart, reduced, selectedAgent }: Sce
         );
       }
       case 'tavern': {
-        const n = village.agents.filter((a) => a.location.kind === 'tavern').length;
+        const guests = tavernGuests(village);
+        const n = guests.length;
+        const asleep = guests.filter((a) => a.sleepy).length;
+        const who = n === 0 ? 'Nobody is inside.' : `${n} ${n === 1 ? 'agent rests' : 'agents rest'} inside: ${guests.map((a) => a.name).join('; ')}.${asleep ? ` ${asleep} asleep.` : ''}`;
         return (
-          <Focusable key={s.id} label={`Tavern: ${n} ${n === 1 ? 'agent rests' : 'agents rest'} here. Agents with no open tasks go to the tavern.`} panel={{ kind: 'place', id: 'tavern' }} onOpen={onOpen} at={at} ring={TAVERN_RING}>
-            <Tavern />
+          <Focusable key={s.id} label={`Tavern: ${who} Agents with no open tasks rest inside the tavern. Open it to see who is here.`} panel={{ kind: 'place', id: 'tavern' }} onOpen={onOpen} at={at} ring={TAVERN_RING}>
+            <Tavern inside={n} sleepers={asleep} />
           </Focusable>
         );
       }
@@ -746,7 +751,7 @@ function SceneView({ village, onOpen, xp, dayPart, reduced, selectedAgent }: Sce
     <div ref={wrap} className="va-scene-wrap" data-daypart={dayPart}>
       {blockCard && <NeedsBlock village={village} onOpen={onOpen} />}
       <p id="va-scene-desc" className="va-sr">
-        Tab moves through the town hall, buildings (including the chapel, well, herbalist's hut and schoolhouse) and town square pieces from the top of the scene downwards, then the content pipeline carts, then the characters. Characters keep their place in the Tab order while they walk. A character's name tag shows only while it is focused or its details are open; each character's name is always part of its label. Enter or Space opens details. The list view has the same information as tables.
+        Tab moves through the town hall, buildings (including the chapel, well, herbalist's hut and schoolhouse) and town square pieces from the top of the scene downwards, then the content pipeline carts, then the characters. Characters keep their place in the Tab order while they walk. Agents with no open tasks rest inside the tavern and are not in the Tab order; the tavern lists them. A character's name tag shows only while it is focused or its details are open; each character's name is always part of its label. Enter or Space opens details. The list view has the same information as tables.
         {narrow ? ' On narrow screens the list view is easier to use.' : ''}
       </p>
       <svg
@@ -819,7 +824,7 @@ function CharacterSpriteView({ c, view, registry }: { c: PlacedChar; view: WalkV
   const ref = useRegistered(registry, c.key);
   const pose = view ? 'walk' : c.pose;
   return (
-    <g ref={ref} transform={`translate(${c.x} ${c.y})`}>
+    <g ref={ref} transform={`translate(${c.x} ${c.y})`} className={`va-sprite${c.inside && !view ? ' va-inside' : ''}`}>
       {a.personas?.length ? (
         <Troupe personas={a.personas} pose={pose} alert={c.alert} />
       ) : (
@@ -835,6 +840,8 @@ function CharacterHit({ c, village, onOpen, xp, walking, registry }: { c: Placed
   const half = c.width / 2 + 4;
   const top = c.alert ? -114 : -88;
   const ref = useRegistered(registry, c.key);
+  // T48: inside the tavern: not a control (the tavern lists them); the group stays so the walker can move it
+  if (c.inside) return <g ref={ref} transform={`translate(${c.x} ${c.y})`} aria-hidden="true" />;
   return (
     <Focusable
       gRef={ref}

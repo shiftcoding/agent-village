@@ -46,6 +46,14 @@ export interface TroupeArtProps {
   alert?: boolean;
 }
 
+/** The tavern (T48): idle agents rest inside it instead of standing in front. */
+export interface TavernArtProps {
+  /** How many agents are inside: a count plank under the sign and figures in the windows. Omitted = no plank. */
+  inside?: number;
+  /** How many of them are asleep (no log line for 24 hours): a zzz drifts from the dormer. */
+  sleepers?: number;
+}
+
 export interface BuildingArtProps {
   stage: Stage;
   /** 0-100 or null; used for the "building" stage floor-by-floor growth. */
