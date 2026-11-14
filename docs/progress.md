@@ -2,7 +2,7 @@
 
 Stage: building
 Overall: 97%
-Updated: 2026-11-14 15:34
+Updated: 2026-11-14 15:40
 
 ## Needs you
 - [x] Review phase 1 (v1 static village) before phase 2 starts (raised by orchestrator)
@@ -13,7 +13,7 @@ Updated: 2026-11-14 15:34
 - [x] Review name tags hidden until an agent is selected (T45) (raised by orchestrator)
 - [x] Approve the new building designs in the preview (docs/screenshots/buildings-v3-*) before they replace the village art (raised by orchestrator)
 - [x] Review art pass 3 in the village (docs/screenshots/after3-*) and decide whether to merge feat/settlers-style-buildings (raised by orchestrator)
-- [ ] Review idle agents going inside the tavern (T48) (raised by orchestrator)
+- [x] Review idle agents going inside the tavern (T48) (raised by orchestrator)
 - [ ] Confirm the v1 fixture extensions docs/reviews/*.md (failing signal) and ?now override as conventions for phase 2 (raised by typescript-pro)
 
 ## Milestones
@@ -34,7 +34,7 @@ Updated: 2026-11-14 15:34
 - [x] Bold art pass 2: village reads as a richer painted scene at 1280 px
 - [x] Art pass 3: richer, more detailed buildings (preview approved, then in the village)
 - [x] Name tags show only for the selected agent
-- [ ] Idle agents rest inside the tavern
+- [x] Idle agents rest inside the tavern
 
 ## Tasks
 | ID | Task | Agent | Status | Notes |
@@ -86,7 +86,7 @@ Updated: 2026-11-14 15:34
 | T45 | Hide agent name tags unless that agent is selected (focus, click or tap) | orchestrator | done | Tag shows while the character is focused or its panel is open; aria-labels unchanged; 194 tests pass |
 | T46 | Art pass 3: preview of detailed, warm medieval building designs (inn, cottage, chapel), light and dark | orchestrator | done | src/art/v3 (inn, cottage, stone chapel, shared parts); /preview.html dev page; shots docs/screenshots/buildings-v3-*; village untouched |
 | T47 | Art pass 3: replace village building art with the approved designs | orchestrator | done | Tavern is the inn, chapel is the stone chapel, herbalist hut and schoolhouse rebuilt on the v3 shell with their props; rings re-fitted; 188 tests pass; JS 436 -> 456 kB (131 -> 136 gzip) |
-| T48 | Idle agents go inside the tavern: walk to the door and vanish, count sign and figures in the windows, out of the Tab order, listed in the tavern panel | orchestrator | review | Data unchanged (location tavern); scene walks them to the inn door and hides them, no tag, not in Tab order; count board, window figures, zzz; tavern panel lists them; 192 tests pass; shots docs/screenshots/inside-* |
+| T48 | Idle agents go inside the tavern: walk to the door and vanish, count sign and figures in the windows, out of the Tab order, listed in the tavern panel | orchestrator | done | Data unchanged (location tavern); scene walks them to the inn door and hides them, no tag, not in Tab order; count board, window figures, zzz; tavern panel lists them; 192 tests pass; shots docs/screenshots/inside-* |
 
 ## Log
 - 2026-11-13 13:20 orchestrator: Scaffolded Vite + React + TypeScript, wrote data and art contracts
@@ -165,3 +165,4 @@ Updated: 2026-11-14 15:34
 - 2026-11-14 15:17 orchestrator: Ivan approved T45; merged feat/name-tags-on-select into feat/v1-static-village (progress.md conflict resolved by keeping both)
 - 2026-11-14 15:26 orchestrator: Ivan asked for idle agents to go inside the tavern instead of waiting in front; started T48 on branch feat/agents-inside-tavern
 - 2026-11-14 15:34 orchestrator: Finished T48: idle agents walk to the inn door and go inside; count board, figures in the windows and a zzz for sleepers; legend and spec updated; typecheck, 192 tests and build pass; walk checked in the browser (in and out), both themes, day and night
+- 2026-11-14 15:40 orchestrator: Ivan approved T48; merged feat/agents-inside-tavern into feat/v1-static-village (fast-forward)
