@@ -2,7 +2,7 @@
 
 Stage: building
 Overall: 97%
-Updated: 2026-11-13 18:05
+Updated: 2026-11-14 14:04
 
 ## Needs you
 - [x] Review phase 1 (v1 static village) before phase 2 starts (raised by orchestrator)
@@ -10,6 +10,7 @@ Updated: 2026-11-13 18:05
 - [x] Review phase 3 (polish) before the art pass and Answer in Claude button start (raised by orchestrator)
 - [x] Review the art pass (docs/screenshots before-*/after-*) and the Answer in Claude button (raised by orchestrator)
 - [ ] Review bold art pass 2 (docs/screenshots after-* vs after2-*) (raised by orchestrator)
+- [ ] Review name tags hidden until an agent is selected (T45) (raised by orchestrator)
 - [ ] Confirm the v1 fixture extensions docs/reviews/*.md (failing signal) and ?now override as conventions for phase 2 (raised by typescript-pro)
 
 ## Milestones
@@ -28,6 +29,7 @@ Updated: 2026-11-13 18:05
 - [x] Art pass: richer hand-painted look in code (shading, texture, lighting, character detail)
 - [x] "Answer in Claude" button (copies a prompt per Needs-you item and agent; read-only)
 - [x] Bold art pass 2: village reads as a richer painted scene at 1280 px
+- [ ] Name tags show only for the selected agent
 
 ## Tasks
 | ID | Task | Agent | Status | Notes |
@@ -76,6 +78,7 @@ Updated: 2026-11-13 18:05
 | T42 | Accessibility review of bold art pass 2 | accessibility-tester | done | 0 must-fix; ring thickness on small screens, ring sizes |
 | T43 | Fix art review findings (ring sizes, barrel, Ground memo, ring tests) | ui-designer | done | 188 tests pass |
 | T44 | Fix scene review findings (3 px non-scaling ring, character ring height) | react-specialist | done | 186 tests pass at the time |
+| T45 | Hide agent name tags unless that agent is selected (focus, click or tap) | orchestrator | review | Tag shows while the character is focused or its panel is open; aria-labels unchanged; 194 tests pass |
 
 ## Log
 - 2026-11-13 13:20 orchestrator: Scaffolded Vite + React + TypeScript, wrote data and art contracts
@@ -144,3 +147,5 @@ Updated: 2026-11-13 18:05
 - 2026-11-13 17:42 ui-designer: Finished T39 round 2: buildings 1.2-1.25x with clear lit and shadow faces, dressing cut to 9 edge pieces
 - 2026-11-13 17:42 orchestrator: Reviews done (T41, T42); fixes T43 and T44 done; typecheck, 188 tests, build and sync pass; focus rings checked in the browser at 3 px and fitted to each building
 - 2026-11-13 18:05 orchestrator: FlowBro restarted in ~/src/flowbro from brief v2.0; village.config.json now points at it; browser fallback and tests keep using the FlowBro fixture
+- 2026-11-14 14:02 orchestrator: Ivan asked to hide agent names unless selected; started T45 on branch feat/name-tags-on-select
+- 2026-11-14 14:04 orchestrator: Finished T45; typecheck, 194 tests and build pass; browser check: no tags on load, tag on focus and while panel open, hidden on blur, both themes, no console errors
