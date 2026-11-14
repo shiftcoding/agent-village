@@ -92,6 +92,10 @@ export function GableRoof({ g, kind, fill, edge, gable, gableTex, gableDetail, s
       <polygon points={tri} fill={U('g-dim')} />
       {/* soffit shadow: the overhang darkens the top of the gable */}
       <polygon points={pts(gp(g, A, D, H), gp(g, A, 0, H + rise * 0.9), gp(g, A, -D, H), gp(g, A, -D + 6, H + 3), gp(g, A, 0, H + rise * 0.9 - 6), gp(g, A, D - 6, H + 3))} fill="var(--va-shadow)" style={{ fillOpacity: 'calc(var(--va-ao-opacity) * 0.7)' }} />
+      {/* undersides of the overhang at the gable end (soffits): the roof has depth, never a gap */}
+      <polygon points={pts(Ft, M2, gp(g, A, 0, H + rise * 0.9), gx)} fill={C(edge)} {...LINE} />
+      <polygon points={pts(M2, Rt, gp(g, A, -D, H), gp(g, A, 0, H + rise * 0.9))} fill={C(edge)} {...LINE} />
+      <polygon points={pts(M2, Rt, gp(g, A, -D, H), gp(g, A, 0, H + rise * 0.9))} fill="var(--va-shadow)" style={{ fillOpacity: 'calc(var(--va-ao-opacity) * 0.9)' }} />
       {/* front slope */}
       <polygon points={plane} fill={C(fill)} {...LINE} />
       <RoofFx points={plane} tex={kind === 'tiles' ? 'tiles' : kind} />
@@ -126,7 +130,7 @@ export function GableRoof({ g, kind, fill, edge, gable, gableTex, gableDetail, s
       {/* weathering: soft darker patches and a little moss */}
       {patches.map((p, i) => {
         const c = slopePt(g, p.u, p.t);
-        return <ellipse key={i} cx={c.x} cy={c.y} rx={9 * p.s} ry={4 * p.s} fill={i % 2 ? C('vine') : C(edge)} style={{ fillOpacity: kind === 'thatch' ? 0.18 : 0.22 }} />;
+        return <ellipse key={i} cx={c.x} cy={c.y} rx={9 * p.s} ry={4 * p.s} fill={i % 2 ? C('vine') : C(edge)} style={{ fillOpacity: 0.12 }} />;
       })}
       {/* eave fascia: the thickness of the roof edge */}
       <polygon points={pts(Lt, Ft, { x: Ft.x, y: Ft.y + (kind === 'thatch' ? 6 : 3.6) }, { x: Lt.x, y: Lt.y + (kind === 'thatch' ? 6 : 3.6) })} fill={C(edge)} {...LINE} />

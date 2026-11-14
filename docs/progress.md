@@ -2,7 +2,7 @@
 
 Stage: building
 Overall: 97%
-Updated: 2026-11-14 14:28
+Updated: 2026-11-14 14:37
 
 ## Needs you
 - [x] Review phase 1 (v1 static village) before phase 2 starts (raised by orchestrator)
@@ -78,7 +78,7 @@ Updated: 2026-11-14 14:28
 | T42 | Accessibility review of bold art pass 2 | accessibility-tester | done | 0 must-fix; ring thickness on small screens, ring sizes |
 | T43 | Fix art review findings (ring sizes, barrel, Ground memo, ring tests) | ui-designer | done | 188 tests pass |
 | T44 | Fix scene review findings (3 px non-scaling ring, character ring height) | react-specialist | done | 186 tests pass at the time |
-| T46 | Art pass 3: preview of detailed, warm medieval building designs (inn, cottage, chapel), light and dark | orchestrator | doing | Original art in code, genre feel only; preview page first, village untouched until Ivan approves |
+| T46 | Art pass 3: preview of detailed, warm medieval building designs (inn, cottage, chapel), light and dark | orchestrator | review | src/art/v3 (inn, cottage, stone chapel, shared parts); /preview.html dev page; shots docs/screenshots/buildings-v3-*; village untouched |
 | T47 | Art pass 3: replace village building art with the approved designs | ui-designer | blocked | Waits for Ivan to approve T46 |
 
 ## Log
@@ -149,3 +149,4 @@ Updated: 2026-11-14 14:28
 - 2026-11-13 17:42 orchestrator: Reviews done (T41, T42); fixes T43 and T44 done; typecheck, 188 tests, build and sync pass; focus rings checked in the browser at 3 px and fitted to each building
 - 2026-11-13 18:05 orchestrator: FlowBro restarted in ~/src/flowbro from brief v2.0; village.config.json now points at it; browser fallback and tests keep using the FlowBro fixture
 - 2026-11-14 14:28 orchestrator: Ivan asked for higher quality buildings in a richly detailed city-builder feel; started T46 (preview first) on branch feat/settlers-style-buildings
+- 2026-11-14 14:37 orchestrator: Finished the T46 preview: inn, cottage and stone chapel in src/art/v3, shown next to today's art at /preview.html; light and dark, day and night screenshots saved; typecheck, tests and build pass; waiting for Ivan's approval before T47
