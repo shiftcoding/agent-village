@@ -23,7 +23,7 @@ function Belfry({ w }: { w: number }): JSX.Element {
 
 /**
  * Art pass 3 preview (T46): a stone chapel. Long nave with buttresses and tall pointed windows, a slate roof, a
- * square bell tower with a belfry and a slate spire, a rose window in the gable, a low churchyard wall and a yew.
+ * square bell tower with a belfry and a slate spire, a rose window in the gable, flower beds along the nave and a yew.
  */
 export function StoneChapel(): JSX.Element {
   const tc = iso(0, 0, TA, 0);
@@ -103,9 +103,9 @@ export function StoneChapel(): JSX.Element {
         );
       })}
       <FootTufts A={A} D={D} seed={12} />
-      {/* churchyard: low wall, flower bed and a yew */}
-      <GardenBed a={22} b={D + 12} A={18} D={4} seed={14} />
-      <SlabBox cx={iso(0, 0, 32, D + 22).x} cy={iso(0, 0, 32, D + 22).y} A={26} D={2.4} h={7} fill="stone-light" side="stone" />
+      {/* flower beds along the nave and a yew */}
+      <GardenBed a={11} b={D + 8} A={8} D={3} seed={14} />
+      <GardenBed a={-11} b={D + 8} A={8} D={3} seed={15} />
       <g transform={`translate(${iso(0, 0, A + 14, 6).x} ${iso(0, 0, A + 14, 6).y})`}>
         <Bush s={1.3} />
       </g>

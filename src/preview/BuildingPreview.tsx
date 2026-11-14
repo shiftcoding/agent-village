@@ -1,12 +1,10 @@
 import type { ReactNode } from 'react';
-import { ArtDefs, Chapel, HerbalistHut, Tavern } from '../art';
+import { ArtDefs, Chapel, HerbalistHut, Schoolhouse, Tavern } from '../art';
 import { Cottage } from '../art/v3/Cottage';
-import { Inn } from '../art/v3/Inn';
-import { StoneChapel } from '../art/v3/StoneChapel';
 
 /**
- * Dev-only page (preview.html, served by `npm run dev` at /preview.html; not part of the village build): the current
- * building art next to the art pass 3 designs, so Ivan can approve them before they replace anything in the village.
+ * Dev-only page (preview.html, served by `npm run dev` at /preview.html; not part of the village build): a gallery of
+ * the art pass 3 buildings, one per tile, for reviewing art changes without the rest of the scene.
  * ?theme=light|dark and ?time=day|dawn|dusk|night pick the palette.
  */
 
@@ -14,9 +12,8 @@ const params = new URLSearchParams(window.location.search);
 const theme = params.get('theme');
 if (theme === 'light' || theme === 'dark') document.documentElement.setAttribute('data-theme', theme);
 const time = params.get('time') ?? 'day';
-/** ?only=0|1|2 shows one row, ?new=1 only the new design (bigger, for close inspection). */
+/** ?only=<index> shows one building, bigger, for close inspection. */
 const only = params.get('only');
-const newOnly = params.get('new') === '1';
 
 function Tile({ title, children, w = 520, h = 400, y = 300 }: { title: string; children: ReactNode; w?: number; h?: number; y?: number }): JSX.Element {
   const cx = w / 2;
@@ -34,10 +31,12 @@ function Tile({ title, children, w = 520, h = 400, y = 300 }: { title: string; c
   );
 }
 
-const ROWS: Array<{ name: string; now: ReactNode; next: ReactNode; y?: number }> = [
-  { name: 'Inn (replaces the tavern)', now: <Tavern />, next: <Inn />, y: 300 },
-  { name: 'Cottage (shell for the specialist houses)', now: <HerbalistHut />, next: <Cottage />, y: 310 },
-  { name: 'Stone chapel', now: <Chapel />, next: <StoneChapel />, y: 330 },
+const ROWS: Array<{ name: string; art: ReactNode; y?: number }> = [
+  { name: 'Tavern (the inn)', art: <Tavern />, y: 300 },
+  { name: 'Chapel', art: <Chapel />, y: 330 },
+  { name: 'Herbalist hut', art: <HerbalistHut />, y: 300 },
+  { name: 'Schoolhouse', art: <Schoolhouse />, y: 300 },
+  { name: 'Cottage (shell)', art: <Cottage />, y: 310 },
 ];
 
 export function BuildingPreview(): JSX.Element {
@@ -46,21 +45,16 @@ export function BuildingPreview(): JSX.Element {
       <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
         <ArtDefs />
       </svg>
-      <h1 style={{ fontSize: 22, margin: '0 0 4px' }}>Art pass 3 preview: buildings</h1>
+      <h1 style={{ fontSize: 22, margin: '0 0 4px' }}>Art pass 3: buildings</h1>
       <p style={{ margin: '0 0 14px', color: 'var(--va-text-muted)' }}>
-        Left: the village today. Right: the new designs. Theme {document.documentElement.getAttribute('data-theme') ?? 'system'}, time of day {time}.
+        The buildings as drawn in the village (art pass 3, approved by Ivan). Theme {document.documentElement.getAttribute('data-theme') ?? 'system'}, time of day {time}.
       </p>
-      <div style={{ display: 'grid', gridTemplateColumns: newOnly ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: 16, maxWidth: 1100 }}>
-        {ROWS.filter((_, i) => only === null || String(i) === only).flatMap((r) => [
-          newOnly ? null : (
-            <Tile key={`${r.name}-now`} title={`Today: ${r.name}`} y={r.y}>
-              {r.now}
-            </Tile>
-          ),
-          <Tile key={`${r.name}-next`} title={`New: ${r.name}`} y={r.y}>
-            {r.next}
-          </Tile>,
-        ])}
+      <div style={{ display: 'grid', gridTemplateColumns: only !== null ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: 16, maxWidth: 1100 }}>
+        {ROWS.filter((_, i) => only === null || String(i) === only).map((r) => (
+          <Tile key={r.name} title={r.name} y={r.y}>
+            {r.art}
+          </Tile>
+        ))}
       </div>
     </main>
   );
