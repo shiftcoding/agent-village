@@ -2,7 +2,7 @@
 
 Stage: building
 Overall: 97%
-Updated: 2026-11-14 15:13
+Updated: 2026-11-14 15:14
 
 ## Needs you
 - [x] Review phase 1 (v1 static village) before phase 2 starts (raised by orchestrator)
@@ -11,7 +11,7 @@ Updated: 2026-11-14 15:13
 - [x] Review the art pass (docs/screenshots before-*/after-*) and the Answer in Claude button (raised by orchestrator)
 - [ ] Review bold art pass 2 (docs/screenshots after-* vs after2-*) (raised by orchestrator)
 - [x] Approve the new building designs in the preview (docs/screenshots/buildings-v3-*) before they replace the village art (raised by orchestrator)
-- [ ] Review art pass 3 in the village (docs/screenshots/after3-*) and decide whether to merge feat/settlers-style-buildings (raised by orchestrator)
+- [x] Review art pass 3 in the village (docs/screenshots/after3-*) and decide whether to merge feat/settlers-style-buildings (raised by orchestrator)
 - [ ] Confirm the v1 fixture extensions docs/reviews/*.md (failing signal) and ?now override as conventions for phase 2 (raised by typescript-pro)
 
 ## Milestones
@@ -80,7 +80,7 @@ Updated: 2026-11-14 15:13
 | T43 | Fix art review findings (ring sizes, barrel, Ground memo, ring tests) | ui-designer | done | 188 tests pass |
 | T44 | Fix scene review findings (3 px non-scaling ring, character ring height) | react-specialist | done | 186 tests pass at the time |
 | T46 | Art pass 3: preview of detailed, warm medieval building designs (inn, cottage, chapel), light and dark | orchestrator | done | src/art/v3 (inn, cottage, stone chapel, shared parts); /preview.html dev page; shots docs/screenshots/buildings-v3-*; village untouched |
-| T47 | Art pass 3: replace village building art with the approved designs | orchestrator | review | Tavern is the inn, chapel is the stone chapel, herbalist hut and schoolhouse rebuilt on the v3 shell with their props; rings re-fitted; 188 tests pass; JS 436 -> 456 kB (131 -> 136 gzip) |
+| T47 | Art pass 3: replace village building art with the approved designs | orchestrator | done | Tavern is the inn, chapel is the stone chapel, herbalist hut and schoolhouse rebuilt on the v3 shell with their props; rings re-fitted; 188 tests pass; JS 436 -> 456 kB (131 -> 136 gzip) |
 
 ## Log
 - 2026-11-13 13:20 orchestrator: Scaffolded Vite + React + TypeScript, wrote data and art contracts
@@ -153,3 +153,4 @@ Updated: 2026-11-14 15:13
 - 2026-11-14 14:37 orchestrator: Finished the T46 preview: inn, cottage and stone chapel in src/art/v3, shown next to today's art at /preview.html; light and dark, day and night screenshots saved; typecheck, tests and build pass; waiting for Ivan's approval before T47
 - 2026-11-14 15:13 orchestrator: Ivan approved the T46 designs in chat; started T47
 - 2026-11-14 15:13 orchestrator: Finished T47: new tavern, chapel, herbalist hut and schoolhouse art in the village, focus rings re-fitted from measured art, old house shell removed; typecheck, 188 tests and build pass; checked day and night in both themes (docs/screenshots/after3-*)
+- 2026-11-14 15:14 orchestrator: Ivan approved art pass 3 in the village; merged feat/settlers-style-buildings into feat/v1-static-village (fast-forward)
