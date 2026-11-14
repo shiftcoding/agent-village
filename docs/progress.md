@@ -2,7 +2,7 @@
 
 Stage: building
 Overall: 97%
-Updated: 2026-11-14 16:32
+Updated: 2026-11-14 16:38
 
 ## Needs you
 - [x] Review phase 1 (v1 static village) before phase 2 starts (raised by orchestrator)
@@ -14,7 +14,7 @@ Updated: 2026-11-14 16:32
 - [x] Approve the new building designs in the preview (docs/screenshots/buildings-v3-*) before they replace the village art (raised by orchestrator)
 - [x] Review art pass 3 in the village (docs/screenshots/after3-*) and decide whether to merge feat/settlers-style-buildings (raised by orchestrator)
 - [x] Review idle agents going inside the tavern (T48) (raised by orchestrator)
-- [ ] Review the short agent tooltip with icons (T49) before it is merged (raised by orchestrator)
+- [x] Review the short agent tooltip with icons (T49) before it is merged (raised by orchestrator)
 - [ ] Confirm the v1 fixture extensions docs/reviews/*.md (failing signal) and ?now override as conventions for phase 2 (raised by typescript-pro)
 
 ## Milestones
@@ -88,7 +88,7 @@ Updated: 2026-11-14 16:32
 | T46 | Art pass 3: preview of detailed, warm medieval building designs (inn, cottage, chapel), light and dark | orchestrator | done | src/art/v3 (inn, cottage, stone chapel, shared parts); /preview.html dev page; shots docs/screenshots/buildings-v3-*; village untouched |
 | T47 | Art pass 3: replace village building art with the approved designs | orchestrator | done | Tavern is the inn, chapel is the stone chapel, herbalist hut and schoolhouse rebuilt on the v3 shell with their props; rings re-fitted; 188 tests pass; JS 436 -> 456 kB (131 -> 136 gzip) |
 | T48 | Idle agents go inside the tavern: walk to the door and vanish, count sign and figures in the windows, out of the Tab order, listed in the tavern panel | orchestrator | done | Data unchanged (location tavern); scene walks them to the inn door and hides them, no tag, not in Tab order; count board, window figures, zzz; tavern panel lists them; 192 tests pass; shots docs/screenshots/inside-* |
-| T49 | Agent tooltip: short and scannable with icons (name and role, status, task ID and title, place, level badge); full sentence stays the accessible name | orchestrator | review | Card in src/ui/AgentTip.tsx from agentTipParts; place and task icons in src/art/icons/TipIcon.tsx; aria-label unchanged; before and after at /preview.html?tips=1; shots docs/screenshots/agent-tooltip-*; 196 tests pass |
+| T49 | Agent tooltip: short and scannable with icons (name and role, status, task ID and title, place, level badge); full sentence stays the accessible name | orchestrator | done | Card in src/ui/AgentTip.tsx from agentTipParts; place and task icons in src/art/icons/TipIcon.tsx; aria-label unchanged; before and after at /preview.html?tips=1; shots docs/screenshots/agent-tooltip-*; 196 tests pass |
 
 ## Log
 - 2026-11-13 13:20 orchestrator: Scaffolded Vite + React + TypeScript, wrote data and art contracts
@@ -170,3 +170,4 @@ Updated: 2026-11-14 16:32
 - 2026-11-14 15:40 orchestrator: Ivan approved T48; merged feat/agents-inside-tavern into feat/v1-static-village (fast-forward)
 - 2026-11-14 16:29 orchestrator: Ivan asked for a simpler agent tooltip with icons; started T49 on branch feat/agent-tooltip-icons
 - 2026-11-14 16:32 orchestrator: Finished T49: agent tooltip is now a short card (name and role, status, task id and one-line title, place, flags, level badge), each icon with a text label; full sentence stays the accessible name; typecheck, 196 tests and build pass; checked both themes; waiting for Ivan before merging
+- 2026-11-14 16:38 orchestrator: Ivan approved T49; merged feat/agent-tooltip-icons into feat/v1-static-village (fast-forward)
