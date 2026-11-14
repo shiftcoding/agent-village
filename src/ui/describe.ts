@@ -1,7 +1,7 @@
 /** Plain-text meanings for tooltips and aria-labels. Same text for hover, focus and screen readers. */
 import { pipelineSummary } from '../data/pipeline';
-import type { Agent, PipelineStop, Project, SpecialistPlace, Village } from '../data/types';
-import { CLASS_LABEL, PLACE_LABEL, STAGE_LABEL, STATE_LABEL, buildingName, fmtStamp, sortHealth, the } from './format';
+import type { Agent, AgentState, PipelineStop, Project, SpecialistPlace, Village } from '../data/types';
+import { CLASS_LABEL, PLACE_LABEL, STAGE_LABEL, STATE_LABEL, buildingName, fmtStamp, sortHealth, the, truncate } from './format';
 import { agentOfPlace } from './layout';
 
 export function placeName(a: Agent, village: Village): string {
@@ -28,6 +28,46 @@ export function placeName(a: Agent, village: Village): string {
 function decidingTasks(a: Agent) {
   const same = a.tasks.filter((t) => t.status === a.state && (a.projectId === null || t.projectId === a.projectId));
   return same.length ? same : a.tasks.filter((t) => t.status === a.state);
+}
+
+/** T49: the short agent tooltip, as data (the card in AgentTip.tsx draws it). The full sentence stays the aria-label. */
+export interface AgentTipParts {
+  name: string;
+  role: string;
+  /** Status icon and the short status word next to it. */
+  status: { icon: AgentState | 'stranger'; label: string };
+  /** The task that decided where the agent stands: id and one-line title; `more` other tasks like it. */
+  task: { id: string; title: string; more: number } | null;
+  /** Short place name: "Gatehouse", "Hearth lodge (FlowBro)". */
+  place: string;
+  /** Extra short facts, each with its own icon: a blocked task elsewhere, asleep. */
+  flags: Array<{ icon: 'blocked' | 'idle'; label: string }>;
+  /** "Lv 3 · 70 XP" when levels are shown. */
+  level: string | null;
+}
+
+export const TIP_TITLE_MAX = 44;
+
+export function agentTipParts(a: Agent, village: Village, xp = false): AgentTipParts {
+  const stranger = a.villageClass === 'stranger';
+  const role = stranger ? 'Unknown agent' : CLASS_LABEL[a.villageClass];
+  const tasks = a.state === 'idle' ? [] : decidingTasks(a);
+  const first = tasks[0];
+  const where = placeName(a, village).replace(/^the /, '');
+  const place = where.charAt(0).toUpperCase() + where.slice(1);
+  const flags: AgentTipParts['flags'] = [];
+  if (a.hasBlocked && a.state !== 'blocked') flags.push({ icon: 'blocked', label: 'Has a blocked task' });
+  if (a.state === 'idle' && a.sleepy) flags.push({ icon: 'idle', label: 'Asleep, no log in 24 h' });
+  const resting = a.state === 'idle' && a.location.kind === 'tavern';
+  return {
+    name: a.name,
+    role: a.personas?.length ? `${role}, troupe of ${a.personas.length}` : role,
+    status: { icon: stranger ? 'stranger' : a.state, label: resting ? 'Resting inside' : STATE_LABEL[a.state] },
+    task: first ? { id: first.id, title: truncate(first.title, TIP_TITLE_MAX), more: tasks.length - 1 } : null,
+    place,
+    flags,
+    level: xp ? `Lv ${a.level} · ${a.xp} XP` : null,
+  };
 }
 
 export function agentTip(a: Agent, village: Village, xp = false): string {

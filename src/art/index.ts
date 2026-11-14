@@ -5,6 +5,7 @@ export { Troupe } from './characters/Troupe';
 export { ClassIcon, type ClassIconProps } from './icons/ClassIcon';
 export { SignalIcon, type SignalIconProps } from './icons/SignalIcon';
 export { DayPartIcon } from './icons/DayPartIcon';
+export { TipIcon, type TipIconKind, type TipIconProps } from './icons/TipIcon';
 export { HearthLodge, HEARTH_LODGE_ANCHORS } from './buildings/HearthLodge';
 export { BUILDING_RINGS } from './buildings/ProjectBuilding';
 export { CartographersWorkshop, WORKSHOP_ANCHORS } from './buildings/CartographersWorkshop';

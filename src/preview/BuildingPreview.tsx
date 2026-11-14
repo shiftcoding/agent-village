@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ArtDefs, Chapel, HerbalistHut, Schoolhouse, Tavern } from '../art';
 import { Cottage } from '../art/v3/Cottage';
+import { TipPreview } from './TipPreview';
 
 /**
  * Dev-only page (preview.html, served by `npm run dev` at /preview.html; not part of the village build): a gallery of
@@ -14,6 +15,9 @@ if (theme === 'light' || theme === 'dark') document.documentElement.setAttribute
 const time = params.get('time') ?? 'day';
 /** ?only=<index> shows one building, bigger, for close inspection. */
 const only = params.get('only');
+/** ?tips=1 shows the agent tooltips (T49) instead of the buildings; ?xp=1 adds the level badge. */
+const tips = params.get('tips') === '1';
+const xpOn = params.get('xp') === '1';
 
 function Tile({ title, children, w = 520, h = 400, y = 300 }: { title: string; children: ReactNode; w?: number; h?: number; y?: number }): JSX.Element {
   const cx = w / 2;
@@ -45,6 +49,13 @@ export function BuildingPreview(): JSX.Element {
       <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
         <ArtDefs />
       </svg>
+      {tips ? (
+        <>
+          <h1 style={{ fontSize: 22, margin: '0 0 12px' }}>Agent tooltip: before and after</h1>
+          <TipPreview xp={xpOn} />
+        </>
+      ) : (
+        <>
       <h1 style={{ fontSize: 22, margin: '0 0 4px' }}>Art pass 3: buildings</h1>
       <p style={{ margin: '0 0 14px', color: 'var(--va-text-muted)' }}>
         The buildings as drawn in the village (art pass 3, approved by Ivan). Theme {document.documentElement.getAttribute('data-theme') ?? 'system'}, time of day {time}.
@@ -56,6 +67,8 @@ export function BuildingPreview(): JSX.Element {
           </Tile>
         ))}
       </div>
+        </>
+      )}
     </main>
   );
 }

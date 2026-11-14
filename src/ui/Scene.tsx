@@ -53,6 +53,7 @@ import { needsYouKeys, needsYouLabel, needsYouPrompt } from './answerPrompt';
 import { sameVillage } from './sameVillage';
 import { stableOrder } from './stableOrder';
 import { signalPills, type Pill } from './strips';
+import { AgentTip } from './AgentTip';
 import { useTip, useTipFactory, useTipSync } from './Tooltip';
 import { useWalker } from './useWalker';
 import { willWalk, type Pt, type WalkView } from './walk';
@@ -85,12 +86,14 @@ interface FocusableProps {
   gRef?: Ref<SVGGElement>;
   /** True while this control's character walks: its tooltip hides and comes back on arrival if still focused. */
   walking?: boolean;
+  /** T49: a richer tooltip that says the same as `label` (the agent card). */
+  tip?: ReactNode;
   children: ReactNode;
 }
 
 /** A keyboard-reachable SVG control: Tab to focus, Enter or Space to open, visible ring, tooltip on hover and focus. */
-function Focusable({ label, panel, onOpen, ring, at, hit, className, id, gRef, walking, children }: FocusableProps): JSX.Element {
-  const tip = useTip(label);
+function Focusable({ label, panel, onOpen, ring, at, hit, className, id, gRef, walking, tip: rich, children }: FocusableProps): JSX.Element {
+  const tip = useTip(label, rich);
   const inner = useRef<SVGGElement | null>(null);
   const setRef = useCallback(
     (el: SVGGElement | null) => {
@@ -100,7 +103,7 @@ function Focusable({ label, panel, onOpen, ring, at, hit, className, id, gRef, w
     },
     [gRef],
   );
-  useTipSync(label, inner, walking === true);
+  useTipSync(label, inner, walking === true, rich);
   const open = (el: Element): void => onOpen(panel, el);
   const onKeyDown = (e: KeyboardEvent<SVGGElement>): void => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -846,6 +849,7 @@ function CharacterHit({ c, village, onOpen, xp, walking, registry }: { c: Placed
     <Focusable
       gRef={ref}
       label={agentTip(a, village, xp)}
+      tip={<AgentTip a={a} village={village} xp={xp} />}
       panel={{ kind: 'agent', name: a.name }}
       onOpen={onOpen}
       at={{ x: c.x, y: c.y }}
