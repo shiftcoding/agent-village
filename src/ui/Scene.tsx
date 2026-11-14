@@ -56,6 +56,7 @@ import { signalPills, type Pill } from './strips';
 import { useTip, useTipFactory, useTipSync } from './Tooltip';
 import { useWalker } from './useWalker';
 import { willWalk, type Pt, type WalkView } from './walk';
+import { tagShown } from './tagVisibility';
 
 /* ------------------------------------------------------------ small building blocks */
 
@@ -485,6 +486,8 @@ interface SceneProps {
   /** Time of day: sets data-daypart on the scene wrapper (the CSS recolours the scene and fades 2.5 s). */
   dayPart: DayPartName;
   reduced: boolean;
+  /** Agent whose details panel is open: its name tag shows. Other tags show only while their character has focus. */
+  selectedAgent: string | null;
 }
 
 const NO_VIEWS: ReadonlyMap<string, WalkView> = new Map();
@@ -518,7 +521,7 @@ function useWidth(): [RefObject<HTMLDivElement>, number] {
   return [ref, w];
 }
 
-function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.Element {
+function SceneView({ village, onOpen, xp, dayPart, reduced, selectedAgent }: SceneProps): JSX.Element {
   const [wrap, width] = useWidth();
   // The palette transition (tokens.css) only applies once this class is set, one frame after the first paint, so the
   // first load shows the current day part at once and only real day-part changes fade.
@@ -581,6 +584,12 @@ function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.E
     hitOrderRef.current = hitOrder;
   }, [hitOrder]);
   const charByKey = useMemo(() => new Map(chars.map((c) => [c.key, c])), [chars]);
+  // Name tags are hidden until a character is selected: focused (Tab, click or tap) or its panel open.
+  const [focusedKey, setFocusedKey] = useState<string | null>(null);
+  const keyOf = (el: EventTarget | null): string | null => {
+    for (const [k, g] of hits.current) if (g === el) return k;
+    return null;
+  };
   // Sprites re-sort by y whenever a walk ends (a walking sprite keeps the y of the place it left until it arrives).
   const spriteOrder = [...chars].sort((p, q) => sortY(p, views, settled.current) - sortY(q, views, settled.current) || p.x - q.x || p.key.localeCompare(q.key));
   const [cardH, setCardH] = useState(() => Math.min(CARD_MAX_H, Math.ceil(estimateHeight(village.needsYou, fontPx, cardGeometry(village.needsYou, fontPx).w, cardGeometry(village.needsYou, fontPx).cols))));
@@ -737,7 +746,7 @@ function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.E
     <div ref={wrap} className="va-scene-wrap" data-daypart={dayPart}>
       {blockCard && <NeedsBlock village={village} onOpen={onOpen} />}
       <p id="va-scene-desc" className="va-sr">
-        Tab moves through the town hall, buildings (including the chapel, well, herbalist's hut and schoolhouse) and town square pieces from the top of the scene downwards, then the content pipeline carts, then the characters. Characters keep their place in the Tab order while they walk. Enter or Space opens details. The list view has the same information as tables.
+        Tab moves through the town hall, buildings (including the chapel, well, herbalist's hut and schoolhouse) and town square pieces from the top of the scene downwards, then the content pipeline carts, then the characters. Characters keep their place in the Tab order while they walk. A character's name tag shows only while it is focused or its details are open; each character's name is always part of its label. Enter or Space opens details. The list view has the same information as tables.
         {narrow ? ' On narrow screens the list view is easier to use.' : ''}
       </p>
       <svg
@@ -758,7 +767,7 @@ function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.E
             <CharacterSprite key={c.key} c={c} view={views.get(c.key) ?? null} registry={sprites.current} />
           ))}
         </g>
-        <g className="va-hits">
+        <g className="va-hits" onFocus={(e) => setFocusedKey(keyOf(e.target))} onBlur={() => setFocusedKey(null)}>
           {hitOrder.map((key) => {
             const c = charByKey.get(key);
             return c ? <CharacterHit key={key} c={c} village={village} onOpen={onOpen} xp={xp} walking={views.has(key)} registry={hits.current} /> : null;
@@ -769,7 +778,12 @@ function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.E
         ))}
         <g className="va-tags" aria-hidden="true" pointerEvents="none">
           {tags.map((t) => (
-            <Tag key={t.key} t={t} font={font} hidden={views.has(t.key) || willWalk(settled.current.get(t.key), t.feet, reduced)} />
+            <Tag
+              key={t.key}
+              t={t}
+              font={font}
+              hidden={!tagShown(t.key, charByKey.get(t.key)?.agent.name, focusedKey, selectedAgent) || views.has(t.key) || willWalk(settled.current.get(t.key), t.feet, reduced)}
+            />
           ))}
         </g>
         <g className="va-strips">
@@ -909,5 +923,5 @@ export function NeedsBlock({ village, onOpen }: { village: Village; onOpen: Open
  */
 export const Scene = memo(
   SceneView,
-  (a, b) => a.onOpen === b.onOpen && a.xp === b.xp && a.dayPart === b.dayPart && a.reduced === b.reduced && sameVillage(a.village, b.village),
+  (a, b) => a.onOpen === b.onOpen && a.selectedAgent === b.selectedAgent && a.xp === b.xp && a.dayPart === b.dayPart && a.reduced === b.reduced && sameVillage(a.village, b.village),
 );

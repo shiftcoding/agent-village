@@ -2,7 +2,7 @@
 
 Stage: building
 Overall: 97%
-Updated: 2026-11-14 15:14
+Updated: 2026-11-14 15:17
 
 ## Needs you
 - [x] Review phase 1 (v1 static village) before phase 2 starts (raised by orchestrator)
@@ -10,6 +10,7 @@ Updated: 2026-11-14 15:14
 - [x] Review phase 3 (polish) before the art pass and Answer in Claude button start (raised by orchestrator)
 - [x] Review the art pass (docs/screenshots before-*/after-*) and the Answer in Claude button (raised by orchestrator)
 - [ ] Review bold art pass 2 (docs/screenshots after-* vs after2-*) (raised by orchestrator)
+- [x] Review name tags hidden until an agent is selected (T45) (raised by orchestrator)
 - [x] Approve the new building designs in the preview (docs/screenshots/buildings-v3-*) before they replace the village art (raised by orchestrator)
 - [x] Review art pass 3 in the village (docs/screenshots/after3-*) and decide whether to merge feat/settlers-style-buildings (raised by orchestrator)
 - [ ] Confirm the v1 fixture extensions docs/reviews/*.md (failing signal) and ?now override as conventions for phase 2 (raised by typescript-pro)
@@ -31,6 +32,7 @@ Updated: 2026-11-14 15:14
 - [x] "Answer in Claude" button (copies a prompt per Needs-you item and agent; read-only)
 - [x] Bold art pass 2: village reads as a richer painted scene at 1280 px
 - [x] Art pass 3: richer, more detailed buildings (preview approved, then in the village)
+- [x] Name tags show only for the selected agent
 
 ## Tasks
 | ID | Task | Agent | Status | Notes |
@@ -79,6 +81,7 @@ Updated: 2026-11-14 15:14
 | T42 | Accessibility review of bold art pass 2 | accessibility-tester | done | 0 must-fix; ring thickness on small screens, ring sizes |
 | T43 | Fix art review findings (ring sizes, barrel, Ground memo, ring tests) | ui-designer | done | 188 tests pass |
 | T44 | Fix scene review findings (3 px non-scaling ring, character ring height) | react-specialist | done | 186 tests pass at the time |
+| T45 | Hide agent name tags unless that agent is selected (focus, click or tap) | orchestrator | done | Tag shows while the character is focused or its panel is open; aria-labels unchanged; 194 tests pass |
 | T46 | Art pass 3: preview of detailed, warm medieval building designs (inn, cottage, chapel), light and dark | orchestrator | done | src/art/v3 (inn, cottage, stone chapel, shared parts); /preview.html dev page; shots docs/screenshots/buildings-v3-*; village untouched |
 | T47 | Art pass 3: replace village building art with the approved designs | orchestrator | done | Tavern is the inn, chapel is the stone chapel, herbalist hut and schoolhouse rebuilt on the v3 shell with their props; rings re-fitted; 188 tests pass; JS 436 -> 456 kB (131 -> 136 gzip) |
 
@@ -149,8 +152,11 @@ Updated: 2026-11-14 15:14
 - 2026-11-13 17:42 ui-designer: Finished T39 round 2: buildings 1.2-1.25x with clear lit and shadow faces, dressing cut to 9 edge pieces
 - 2026-11-13 17:42 orchestrator: Reviews done (T41, T42); fixes T43 and T44 done; typecheck, 188 tests, build and sync pass; focus rings checked in the browser at 3 px and fitted to each building
 - 2026-11-13 18:05 orchestrator: FlowBro restarted in ~/src/flowbro from brief v2.0; village.config.json now points at it; browser fallback and tests keep using the FlowBro fixture
+- 2026-11-14 14:02 orchestrator: Ivan asked to hide agent names unless selected; started T45 on branch feat/name-tags-on-select
+- 2026-11-14 14:04 orchestrator: Finished T45; typecheck, 194 tests and build pass; browser check: no tags on load, tag on focus and while panel open, hidden on blur, both themes, no console errors
 - 2026-11-14 14:28 orchestrator: Ivan asked for higher quality buildings in a richly detailed city-builder feel; started T46 (preview first) on branch feat/settlers-style-buildings
 - 2026-11-14 14:37 orchestrator: Finished the T46 preview: inn, cottage and stone chapel in src/art/v3, shown next to today's art at /preview.html; light and dark, day and night screenshots saved; typecheck, tests and build pass; waiting for Ivan's approval before T47
 - 2026-11-14 15:13 orchestrator: Ivan approved the T46 designs in chat; started T47
 - 2026-11-14 15:13 orchestrator: Finished T47: new tavern, chapel, herbalist hut and schoolhouse art in the village, focus rings re-fitted from measured art, old house shell removed; typecheck, 188 tests and build pass; checked day and night in both themes (docs/screenshots/after3-*)
 - 2026-11-14 15:14 orchestrator: Ivan approved art pass 3 in the village; merged feat/settlers-style-buildings into feat/v1-static-village (fast-forward)
+- 2026-11-14 15:17 orchestrator: Ivan approved T45; merged feat/name-tags-on-select into feat/v1-static-village (progress.md conflict resolved by keeping both)

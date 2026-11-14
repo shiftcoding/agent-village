@@ -6,6 +6,7 @@ import { currentDayPart, msToNextMinute } from './daypart';
 import { BURST_MS, FADE_MS, GrowthController, REDUCED_FADE_MS, TWEEN_MS, shouldFireworks } from './growth';
 import { STOP_NODE, activeStops, pipelineTrackPoints } from './pipelineRoute';
 import { stableOrder } from './stableOrder';
+import { tagShown } from './tagVisibility';
 
 describe('stableOrder', () => {
   it('keeps old order, drops gone keys, appends new ones in desired order', () => {
@@ -186,5 +187,21 @@ describe('sameVillage', () => {
     const a = { generatedAt: '1', agents: [1] } as never;
     expect(sameVillage(a, { generatedAt: '2', agents: [1] } as never)).toBe(true);
     expect(sameVillage(a, { generatedAt: '1', agents: [2] } as never)).toBe(false);
+  });
+});
+
+describe('tagShown', () => {
+  it('hides every tag when nothing is selected', () => {
+    expect(tagShown('a@x', 'alpha', null, null)).toBe(false);
+  });
+  it('shows the focused character only', () => {
+    expect(tagShown('a@x', 'alpha', 'a@x', null)).toBe(true);
+    expect(tagShown('b@x', 'beta', 'a@x', null)).toBe(false);
+  });
+  it('shows every character of the agent whose panel is open', () => {
+    expect(tagShown('a@x', 'alpha', null, 'alpha')).toBe(true);
+    expect(tagShown('a@y', 'alpha', null, 'alpha')).toBe(true);
+    expect(tagShown('b@x', 'beta', null, 'alpha')).toBe(false);
+    expect(tagShown('b@x', undefined, null, 'alpha')).toBe(false);
   });
 });
