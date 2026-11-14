@@ -43,7 +43,7 @@ import type { DayPartName } from '../data/daylight';
 import { agentTip, needsYouTip, pipelineStopTip, projectTip, specialistTip } from './describe';
 import { CLASS_LABEL, fmtStamp, taskKey, truncate } from './format';
 import { FIREWORKS_MS, GrowthController, releasedKey, shouldFireworks } from './growth';
-import { layoutTags, placeCharacters, projectSpotsOf, structures, type Box, type PlacedChar, type Structure, type TagLayout } from './layout';
+import { layoutTags, placeCharacters, projectSpotsOf, structures, tavernGuests, type Box, type PlacedChar, type Structure, type TagLayout } from './layout';
 import { measureText, UI_FONT } from './measure';
 import type { OpenPanel, PanelId } from './panelTypes';
 import { activeStops, pipelineTrackPoints } from './pipelineRoute';
@@ -53,9 +53,11 @@ import { needsYouKeys, needsYouLabel, needsYouPrompt } from './answerPrompt';
 import { sameVillage } from './sameVillage';
 import { stableOrder } from './stableOrder';
 import { signalPills, type Pill } from './strips';
+import { AgentTip } from './AgentTip';
 import { useTip, useTipFactory, useTipSync } from './Tooltip';
 import { useWalker } from './useWalker';
 import { willWalk, type Pt, type WalkView } from './walk';
+import { tagShown } from './tagVisibility';
 
 /* ------------------------------------------------------------ small building blocks */
 
@@ -84,12 +86,14 @@ interface FocusableProps {
   gRef?: Ref<SVGGElement>;
   /** True while this control's character walks: its tooltip hides and comes back on arrival if still focused. */
   walking?: boolean;
+  /** T49: a richer tooltip that says the same as `label` (the agent card). */
+  tip?: ReactNode;
   children: ReactNode;
 }
 
 /** A keyboard-reachable SVG control: Tab to focus, Enter or Space to open, visible ring, tooltip on hover and focus. */
-function Focusable({ label, panel, onOpen, ring, at, hit, className, id, gRef, walking, children }: FocusableProps): JSX.Element {
-  const tip = useTip(label);
+function Focusable({ label, panel, onOpen, ring, at, hit, className, id, gRef, walking, tip: rich, children }: FocusableProps): JSX.Element {
+  const tip = useTip(label, rich);
   const inner = useRef<SVGGElement | null>(null);
   const setRef = useCallback(
     (el: SVGGElement | null) => {
@@ -99,7 +103,7 @@ function Focusable({ label, panel, onOpen, ring, at, hit, className, id, gRef, w
     },
     [gRef],
   );
-  useTipSync(label, inner, walking === true);
+  useTipSync(label, inner, walking === true, rich);
   const open = (el: Element): void => onOpen(panel, el);
   const onKeyDown = (e: KeyboardEvent<SVGGElement>): void => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -485,6 +489,8 @@ interface SceneProps {
   /** Time of day: sets data-daypart on the scene wrapper (the CSS recolours the scene and fades 2.5 s). */
   dayPart: DayPartName;
   reduced: boolean;
+  /** Agent whose details panel is open: its name tag shows. Other tags show only while their character has focus. */
+  selectedAgent: string | null;
 }
 
 const NO_VIEWS: ReadonlyMap<string, WalkView> = new Map();
@@ -518,7 +524,7 @@ function useWidth(): [RefObject<HTMLDivElement>, number] {
   return [ref, w];
 }
 
-function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.Element {
+function SceneView({ village, onOpen, xp, dayPart, reduced, selectedAgent }: SceneProps): JSX.Element {
   const [wrap, width] = useWidth();
   // The palette transition (tokens.css) only applies once this class is set, one frame after the first paint, so the
   // first load shows the current day part at once and only real day-part changes fade.
@@ -581,6 +587,12 @@ function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.E
     hitOrderRef.current = hitOrder;
   }, [hitOrder]);
   const charByKey = useMemo(() => new Map(chars.map((c) => [c.key, c])), [chars]);
+  // Name tags are hidden until a character is selected: focused (Tab, click or tap) or its panel open.
+  const [focusedKey, setFocusedKey] = useState<string | null>(null);
+  const keyOf = (el: EventTarget | null): string | null => {
+    for (const [k, g] of hits.current) if (g === el) return k;
+    return null;
+  };
   // Sprites re-sort by y whenever a walk ends (a walking sprite keeps the y of the place it left until it arrives).
   const spriteOrder = [...chars].sort((p, q) => sortY(p, views, settled.current) - sortY(q, views, settled.current) || p.x - q.x || p.key.localeCompare(q.key));
   const [cardH, setCardH] = useState(() => Math.min(CARD_MAX_H, Math.ceil(estimateHeight(village.needsYou, fontPx, cardGeometry(village.needsYou, fontPx).w, cardGeometry(village.needsYou, fontPx).cols))));
@@ -601,7 +613,9 @@ function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.E
     ],
     [pills, carts, cardH, cardW, blockCard],
   );
-  const tags = useMemo(() => layoutTags(chars, font, measureText, obstacles, undefined, xp), [chars, font, obstacles, xp]);
+  // T48: agents inside the tavern have no name tag
+  const outside = useMemo(() => chars.filter((c) => !c.inside), [chars]);
+  const tags = useMemo(() => layoutTags(outside, font, measureText, obstacles, undefined, xp), [outside, font, obstacles, xp]);
   const slots = useMemo(() => noteSlots(village), [village]);
 
   const needsTip = needsYouTip(village);
@@ -705,10 +719,13 @@ function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.E
         );
       }
       case 'tavern': {
-        const n = village.agents.filter((a) => a.location.kind === 'tavern').length;
+        const guests = tavernGuests(village);
+        const n = guests.length;
+        const asleep = guests.filter((a) => a.sleepy).length;
+        const who = n === 0 ? 'Nobody is inside.' : `${n} ${n === 1 ? 'agent rests' : 'agents rest'} inside: ${guests.map((a) => a.name).join('; ')}.${asleep ? ` ${asleep} asleep.` : ''}`;
         return (
-          <Focusable key={s.id} label={`Tavern: ${n} ${n === 1 ? 'agent rests' : 'agents rest'} here. Agents with no open tasks go to the tavern.`} panel={{ kind: 'place', id: 'tavern' }} onOpen={onOpen} at={at} ring={TAVERN_RING}>
-            <Tavern />
+          <Focusable key={s.id} label={`Tavern: ${who} Agents with no open tasks rest inside the tavern. Open it to see who is here.`} panel={{ kind: 'place', id: 'tavern' }} onOpen={onOpen} at={at} ring={TAVERN_RING}>
+            <Tavern inside={n} sleepers={asleep} />
           </Focusable>
         );
       }
@@ -737,7 +754,7 @@ function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.E
     <div ref={wrap} className="va-scene-wrap" data-daypart={dayPart}>
       {blockCard && <NeedsBlock village={village} onOpen={onOpen} />}
       <p id="va-scene-desc" className="va-sr">
-        Tab moves through the town hall, buildings (including the chapel, well, herbalist's hut and schoolhouse) and town square pieces from the top of the scene downwards, then the content pipeline carts, then the characters. Characters keep their place in the Tab order while they walk. Enter or Space opens details. The list view has the same information as tables.
+        Tab moves through the town hall, buildings (including the chapel, well, herbalist's hut and schoolhouse) and town square pieces from the top of the scene downwards, then the content pipeline carts, then the characters. Characters keep their place in the Tab order while they walk. Agents with no open tasks rest inside the tavern and are not in the Tab order; the tavern lists them. A character's name tag shows only while it is focused or its details are open; each character's name is always part of its label. Enter or Space opens details. The list view has the same information as tables.
         {narrow ? ' On narrow screens the list view is easier to use.' : ''}
       </p>
       <svg
@@ -758,7 +775,7 @@ function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.E
             <CharacterSprite key={c.key} c={c} view={views.get(c.key) ?? null} registry={sprites.current} />
           ))}
         </g>
-        <g className="va-hits">
+        <g className="va-hits" onFocus={(e) => setFocusedKey(keyOf(e.target))} onBlur={() => setFocusedKey(null)}>
           {hitOrder.map((key) => {
             const c = charByKey.get(key);
             return c ? <CharacterHit key={key} c={c} village={village} onOpen={onOpen} xp={xp} walking={views.has(key)} registry={hits.current} /> : null;
@@ -769,7 +786,12 @@ function SceneView({ village, onOpen, xp, dayPart, reduced }: SceneProps): JSX.E
         ))}
         <g className="va-tags" aria-hidden="true" pointerEvents="none">
           {tags.map((t) => (
-            <Tag key={t.key} t={t} font={font} hidden={views.has(t.key) || willWalk(settled.current.get(t.key), t.feet, reduced)} />
+            <Tag
+              key={t.key}
+              t={t}
+              font={font}
+              hidden={!tagShown(t.key, charByKey.get(t.key)?.agent.name, focusedKey, selectedAgent) || views.has(t.key) || willWalk(settled.current.get(t.key), t.feet, reduced)}
+            />
           ))}
         </g>
         <g className="va-strips">
@@ -805,7 +827,7 @@ function CharacterSpriteView({ c, view, registry }: { c: PlacedChar; view: WalkV
   const ref = useRegistered(registry, c.key);
   const pose = view ? 'walk' : c.pose;
   return (
-    <g ref={ref} transform={`translate(${c.x} ${c.y})`}>
+    <g ref={ref} transform={`translate(${c.x} ${c.y})`} className={`va-sprite${c.inside && !view ? ' va-inside' : ''}`}>
       {a.personas?.length ? (
         <Troupe personas={a.personas} pose={pose} alert={c.alert} />
       ) : (
@@ -821,10 +843,13 @@ function CharacterHit({ c, village, onOpen, xp, walking, registry }: { c: Placed
   const half = c.width / 2 + 4;
   const top = c.alert ? -114 : -88;
   const ref = useRegistered(registry, c.key);
+  // T48: inside the tavern: not a control (the tavern lists them); the group stays so the walker can move it
+  if (c.inside) return <g ref={ref} transform={`translate(${c.x} ${c.y})`} aria-hidden="true" />;
   return (
     <Focusable
       gRef={ref}
       label={agentTip(a, village, xp)}
+      tip={<AgentTip a={a} village={village} xp={xp} />}
       panel={{ kind: 'agent', name: a.name }}
       onOpen={onOpen}
       at={{ x: c.x, y: c.y }}
@@ -909,5 +934,5 @@ export function NeedsBlock({ village, onOpen }: { village: Village; onOpen: Open
  */
 export const Scene = memo(
   SceneView,
-  (a, b) => a.onOpen === b.onOpen && a.xp === b.xp && a.dayPart === b.dayPart && a.reduced === b.reduced && sameVillage(a.village, b.village),
+  (a, b) => a.onOpen === b.onOpen && a.selectedAgent === b.selectedAgent && a.xp === b.xp && a.dayPart === b.dayPart && a.reduced === b.reduced && sameVillage(a.village, b.village),
 );

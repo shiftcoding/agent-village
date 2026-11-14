@@ -1,6 +1,7 @@
 import type { BuildingAnchors, RingBox } from '../contract';
-import { Box, C, LINE, iso, Scaled, scalePt, scaleRing } from '../buildings/iso';
-import { GabledHouse, roofPoint, thin } from './House';
+import { Box, C, LINE, iso, Scaled, scalePt } from '../buildings/iso';
+import { Bush, Door, SlabBox, Window, slopePt, thin } from '../v3/parts';
+import { Shell, roofOf } from '../v3/Shell';
 
 const A = 28;
 const D = 22;
@@ -24,8 +25,8 @@ const RAW_ANCHORS: BuildingAnchors = {
 };
 export const HERBALIST_ANCHORS: BuildingAnchors = { door: scalePt(RAW_ANCHORS.door, O, K), roof: scalePt(RAW_ANCHORS.roof, O, K), workSpots: RAW_ANCHORS.workSpots };
 
-/** Focus ring box in local coords (hut, hanging herbs, garden beds and the characters in front). */
-export const HERBALIST_RING: RingBox = scaleRing({ x: -92, y: -112, w: 196, h: 206 }, O, K, 100);
+/** Focus ring box in local coords, measured from the art (T47): chimney to the characters in front, bush to the herb beds. */
+export const HERBALIST_RING: RingBox = { x: -106, y: -146, w: 206, h: 240 };
 
 const HERB = ['leaf', 'vine', 'c-sage', 'c-yellow', 'c-magenta', 'vine-dark'] as const;
 
@@ -83,52 +84,35 @@ function Bed({ a, b, kind }: { a: number; b: number; kind: number }): JSX.Elemen
 }
 
 /**
- * Herbalist hut (womens-health-advisor, the healer): a small thatched hut with herbs hung to dry along the eaves,
- * a half door, a leaf sign and a herb garden of three raised beds on the right. Footprint centre (0,0); about
- * 170 wide, 140 tall. No smoke and no lit windows (those mean an "active project").
+ * Herbalist hut (womens-health-advisor, the healer). Art pass 3 (T47): a stone-plinth, plaster and timber cottage
+ * under a deep thatch with a small roof chimney, herbs hung to dry along the eave, a half door, a leaf sign, a
+ * shuttered window with a flower box and a herb garden of three raised beds on the right. Footprint centre (0,0).
+ * No smoke and no lit windows (those mean an "active project").
  */
 function HerbalistHutArt(): JSX.Element {
-  const geo = { A, D, H, rise: RISE, over: OVER };
-  const eave = (u: number): { x: number; y: number } => roofPoint(geo, u, 0);
-  const bundles = [0.1, 0.24, 0.38, 0.62, 0.76, 0.9].map((u, i) => ({ ...eave(u), i }));
+  const shell = { A, D, P: 8, W: H - 8, rise: RISE, over: OVER };
+  const g = roofOf(shell);
+  const bundles = [0.1, 0.22, 0.34, 0.66, 0.78, 0.9].map((u, i) => ({ ...slopePt(g, u, 0), i }));
   const door = iso(0, 0, 0, D);
   return (
     <g>
       {/* garden beds sit behind the hut's right side and in front of it; drawn first so the hut stands over them */}
       <Bed a={A + 30} b={-20} kind={2} />
-      <GabledHouse
-        A={A}
-        D={D}
-        H={H}
-        rise={RISE}
-        over={OVER}
-        tex="plaster"
-        wallLeft="plaster"
-        wallRight="plaster-shade"
-        wallTop="wood"
-        gable="plaster-shade"
-        roof="thatch"
-        roofEdge="thatch-dark"
-        roofKind="thatch"
+      <Shell
+        {...shell}
+        seed={4}
+        roof={{ kind: 'thatch', fill: 'thatch', edge: 'thatch-dark', seed: 9 }}
+        frameLeft={{ posts: [], braces: [[0, 5, 'up']] }}
+        frameRight={{ posts: [], braces: [[0, 10, 'up'], [2 * D - 10, 2 * D, 'down']] }}
+        chimney={{ a: -A + 10, b: 1, w: 4.5, d: 5, above: 11 }}
         left={
           <g>
-            <path d={`M0,0 L0,${-H} M${A * 2},0 L${A * 2},${-H} M${A * 0.9},0 L${A * 0.9},${-H}`} stroke={C('wood')} strokeWidth={3.4} />
-            <path d={`M0,-3 L${A * 2},-3`} stroke={C('wood')} strokeWidth={3} />
             {/* half door */}
-            <path d={`M${A - 9},0 L${A - 9},-27 Q${A},-33 ${A + 9},-27 L${A + 9},0 Z`} fill={C('wood-dark')} {...thin} />
-            <path d={`M${A - 7},0 L${A - 7},-26 Q${A},-30.6 ${A + 7},-26 L${A + 7},0 Z`} fill={C('wood')} />
-            <path d={`M${A - 7},-12 L${A + 7},-12`} stroke={C('wood-dark')} strokeWidth={1.6} />
-            <circle cx={A + 4} cy={-7} r={1.2} fill={C('gold')} />
-            {/* window with shutters */}
-            <g transform={`translate(${A * 1.6} ${-H * 0.52})`}>
-              <rect x={-6} y={-7} width={12} height={14} fill={C('wood-dark')} {...thin} />
-              <rect x={-4.4} y={-5.4} width={8.8} height={10.8} fill={C('window')} />
-              <path d="M0,-5.4 L0,5.4 M-4.4,0 L4.4,0" stroke={C('wood-dark')} strokeWidth={1.1} />
-              <rect x={-11} y={-7} width={4.6} height={14} fill={C('vine')} {...thin} />
-              <rect x={6.4} y={-7} width={4.6} height={14} fill={C('vine')} {...thin} />
-            </g>
+            <Door x={A} w={15} h={29} />
+            <path d={`M${A - 7.5},-13 L${A + 7.5},-13`} stroke="var(--va-outline)" strokeWidth={1.4} />
+            <Window x={A * 1.62} y={-H * 0.52} w={10} h={12} shutters="vine" box />
             {/* leaf sign */}
-            <g transform={`translate(${A * 0.28} ${-H * 0.5})`}>
+            <g transform={`translate(${A * 0.3} ${-H * 0.5})`}>
               <line x1={-7} y1={-9} x2={7} y2={-9} stroke={C('outline')} strokeWidth={1.6} />
               <rect x={-8} y={-8} width={16} height={14} rx={2.4} fill={C('sign')} {...LINE} />
               <path d="M0,4 Q-6,-1 0,-6 Q6,-1 0,4 Z" fill={C('leaf')} {...thin} />
@@ -136,25 +120,23 @@ function HerbalistHutArt(): JSX.Element {
             </g>
           </g>
         }
-        right={
-          <g>
-            <path d={`M0,0 L0,${-H} M${D * 2},0 L${D * 2},${-H}`} stroke={C('wood')} strokeWidth={3.4} />
-            <rect x={D - 6} y={-H * 0.52 - 7} width={12} height={14} fill={C('wood-dark')} {...thin} />
-            <rect x={D - 4.4} y={-H * 0.52 - 5.4} width={8.8} height={10.8} fill={C('window')} />
-          </g>
-        }
+        right={<Window x={D} y={-H * 0.52} w={9} h={11} shutters="vine" />}
+        gable={{ fill: 'plaster', tex: 'plaster', detail: <Window x={D} y={-10} w={6} h={7} shape="round" /> }}
         above={
           <g>
             {bundles.map((b) => (
-              <Bundle key={b.i} x={b.x} y={b.y} i={b.i} />
+              <Bundle key={b.i} x={b.x} y={b.y + 4} i={b.i} />
             ))}
             {/* doorstep */}
-            <Box cx={door.x} cy={door.y + 3} A={10} D={3} h={3} left={C('stone-light')} right={C('stone')} top={C('stone-light')} />
+            <SlabBox cx={door.x} cy={door.y + 3} A={10} D={3} h={3} />
           </g>
         }
       />
       <Bed a={A + 30} b={0} kind={1} />
       <Bed a={A + 30} b={20} kind={0} />
+      <g transform={`translate(${iso(0, 0, -A - 8, D + 2).x} ${iso(0, 0, -A - 8, D + 2).y})`}>
+        <Bush s={0.8} flowers={2} />
+      </g>
     </g>
   );
 }

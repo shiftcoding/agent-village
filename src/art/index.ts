@@ -1,10 +1,11 @@
 /** Art barrel: everything the UI may import from src/art. */
-export type { BuildingAnchors, BuildingArtProps, CharacterArtProps, DayPart, DayPartIconProps, IconProps, Pose, RingBox, SignalIconKind, SpecialistPlace, TroupeArtProps } from './contract';
+export type { BuildingAnchors, BuildingArtProps, TavernArtProps, CharacterArtProps, DayPart, DayPartIconProps, IconProps, Pose, RingBox, SignalIconKind, SpecialistPlace, TroupeArtProps } from './contract';
 export { Character } from './characters/Character';
 export { Troupe } from './characters/Troupe';
 export { ClassIcon, type ClassIconProps } from './icons/ClassIcon';
 export { SignalIcon, type SignalIconProps } from './icons/SignalIcon';
 export { DayPartIcon } from './icons/DayPartIcon';
+export { TipIcon, type TipIconKind, type TipIconProps } from './icons/TipIcon';
 export { HearthLodge, HEARTH_LODGE_ANCHORS } from './buildings/HearthLodge';
 export { BUILDING_RINGS } from './buildings/ProjectBuilding';
 export { CartographersWorkshop, WORKSHOP_ANCHORS } from './buildings/CartographersWorkshop';

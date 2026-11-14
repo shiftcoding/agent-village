@@ -4,20 +4,22 @@ export interface Tip {
   /** 'focus': opened only by keyboard focus. It never intercepts the pointer (see .va-tip-focus), so it cannot cover neighbours. */
   src: 'pointer' | 'focus';
   text: string;
+  /** T49: richer content drawn instead of the text (the agent card). It always says the same as `text`. */
+  rich?: ReactNode;
   x: number;
   y: number;
 }
 
 /** Next tip state. Returns the SAME object when nothing changed, so a repeated focus or hover never re-renders (no update loops). */
-export function nextTip(cur: Tip | null, text: string, x: number, y: number, fromPointer: boolean): Tip {
+export function nextTip(cur: Tip | null, text: string, x: number, y: number, fromPointer: boolean, rich?: ReactNode): Tip {
   const src = fromPointer ? 'pointer' : 'focus';
-  return cur && cur.src === src && cur.text === text && (fromPointer || (cur.x === x && cur.y === y)) ? cur : { src, text, x, y };
+  return cur && cur.src === src && cur.text === text && (fromPointer || (cur.x === x && cur.y === y)) ? cur : { src, text, rich, x, y };
 }
 
 interface TipApi {
-  show: (text: string, x: number, y: number, fromPointer: boolean, owner?: Element | null) => void;
-  /** The label of the element that owns the open tip changed: update the text in place. */
-  refresh: (owner: Element, text: string) => void;
+  show: (text: string, x: number, y: number, fromPointer: boolean, owner?: Element | null, rich?: ReactNode) => void;
+  /** The label of the element that owns the open tip changed: update the text (and rich content) in place. */
+  refresh: (owner: Element, text: string, rich?: ReactNode) => void;
   /** Hide the tip while its owner is busy (a walking character). */
   hideFor: (owner: Element) => void;
   /** Pointer left the trigger: close after a short grace period unless the pointer reaches the tooltip. */
@@ -45,13 +47,13 @@ export function TooltipProvider({ children }: { children: ReactNode }): JSX.Elem
     if (timer.current !== undefined) window.clearTimeout(timer.current);
     timer.current = undefined;
   };
-  const show = useCallback((text: string, x: number, y: number, fromPointer: boolean, who?: Element | null) => {
+  const show = useCallback((text: string, x: number, y: number, fromPointer: boolean, who?: Element | null, rich?: ReactNode) => {
     cancel();
     if (dismissed.current) return;
     owner.current = who ?? null;
     // while hovering, keep the tooltip where it opened so the pointer can travel onto it
     // keep the same object when nothing changed, so a repeated focus or hover never re-renders (no update loops)
-    setTip((cur) => nextTip(cur, text, x, y, fromPointer));
+    setTip((cur) => nextTip(cur, text, x, y, fromPointer, rich));
   }, []);
   const leave = useCallback(() => {
     cancel();
@@ -68,9 +70,9 @@ export function TooltipProvider({ children }: { children: ReactNode }): JSX.Elem
     setTip(null);
   }, []);
   // Same-object guards keep these from ever looping: nothing changes, nothing re-renders.
-  const refresh = useCallback((who: Element, text: string) => {
+  const refresh = useCallback((who: Element, text: string, rich?: ReactNode) => {
     if (owner.current !== who) return;
-    setTip((cur) => (cur && cur.text !== text ? { ...cur, text } : cur));
+    setTip((cur) => (cur && cur.text !== text ? { ...cur, text, rich } : cur));
   }, []);
   const hideFor = useCallback((who: Element) => {
     if (owner.current !== who) return;
@@ -122,37 +124,37 @@ export function TooltipProvider({ children }: { children: ReactNode }): JSX.Elem
       {tip && (
         <div
           ref={ref}
-          className={tip.src === 'focus' ? 'va-tip va-tip-focus' : 'va-tip'}
+          className={`va-tip${tip.src === 'focus' ? ' va-tip-focus' : ''}${tip.rich ? ' va-tip-rich' : ''}`}
           aria-hidden="true"
           style={{ left: -9999, top: -9999 }}
           onPointerEnter={cancel}
           onPointerLeave={leave}
         >
-          {tip.text}
+          {tip.rich ?? tip.text}
         </div>
       )}
     </Ctx.Provider>
   );
 }
 
-function handlers(api: TipApi, text: string) {
+function handlers(api: TipApi, text: string, rich?: ReactNode) {
   return {
     onPointerEnter: (e: PointerEvent<Element>) => {
       if (e.pointerType === 'touch') return;
-      api.show(text, e.clientX, e.clientY, true, e.currentTarget);
+      api.show(text, e.clientX, e.clientY, true, e.currentTarget, rich);
     },
     onPointerLeave: () => api.leave(),
     onFocus: (e: FocusEvent<Element>) => {
       const r = e.currentTarget.getBoundingClientRect();
-      api.show(text, r.left + r.width / 2, r.top, false, e.currentTarget);
+      api.show(text, r.left + r.width / 2, r.top, false, e.currentTarget, rich);
     },
     onBlur: () => api.blur(),
   };
 }
 
-/** Event handlers that show `text` on hover and focus. Spread onto any element. */
-export function useTip(text: string) {
-  return handlers(useContext(Ctx), text);
+/** Event handlers that show `text` (or `rich`, which must say the same thing) on hover and focus. Spread onto any element. */
+export function useTip(text: string, rich?: ReactNode) {
+  return handlers(useContext(Ctx), text, rich);
 }
 
 /** Tip handlers for lists where hooks cannot be called per item: returns a factory. */
@@ -166,14 +168,16 @@ export function useTipFactory() {
  * and while `walking` the tip is hidden; on arrival it is shown again if the element still has keyboard focus
  * (position re-read from the DOM node). Only passive effects; every state change is guarded.
  */
-export function useTipSync(text: string, ref: RefObject<Element>, walking: boolean): void {
+export function useTipSync(text: string, ref: RefObject<Element>, walking: boolean, rich?: ReactNode): void {
   const api = useContext(Ctx);
   const latest = useRef(text);
   latest.current = text;
+  const latestRich = useRef(rich);
+  latestRich.current = rich;
   const was = useRef(false);
   useEffect(() => {
     const el = ref.current;
-    if (el) api.refresh(el, text);
+    if (el) api.refresh(el, text, latestRich.current);
   }, [api, ref, text]);
   useEffect(() => {
     const el = ref.current;
@@ -181,7 +185,7 @@ export function useTipSync(text: string, ref: RefObject<Element>, walking: boole
     if (walking) api.hideFor(el);
     else if (was.current && document.activeElement === el) {
       const r = el.getBoundingClientRect();
-      api.show(latest.current, r.left + r.width / 2, r.top, false, el);
+      api.show(latest.current, r.left + r.width / 2, r.top, false, el, latestRich.current);
     }
     was.current = walking;
   }, [api, ref, walking]);

@@ -218,7 +218,7 @@ function VillageView({ data }: { data: DataState }): JSX.Element {
           )}
           {view === 'village' ? (
             <>
-              <Scene village={village} onOpen={onOpen} xp={xp} dayPart={dayPart.part} reduced={reduced} />
+              <Scene village={village} onOpen={onOpen} xp={xp} dayPart={dayPart.part} reduced={reduced} selectedAgent={open?.panel.kind === 'agent' ? open.panel.name : null} />
               <section className="va-chronicle" aria-labelledby="chron-title">
                 <h2 id="chron-title" tabIndex={-1}>Chronicle: latest {village.chronicle.length} log lines</h2>
                 <LogList entries={village.chronicle} withProject />

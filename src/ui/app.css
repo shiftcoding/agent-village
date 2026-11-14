@@ -74,6 +74,12 @@ input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--va-accen
 @media (prefers-reduced-motion: no-preference) {
   :root:not([data-motion="reduce"]) .va-tag { transition: opacity 0.25s ease-out; }
 }
+/* T48: a character who reached the tavern door goes inside (fades out; instant under reduced motion) */
+.va-sprite { opacity: 1; }
+.va-sprite.va-inside { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  :root:not([data-motion="reduce"]) .va-sprite { transition: opacity 0.35s ease-out; }
+}
 .va-level-bg { fill: var(--va-accent); }
 .va-level-text { fill: var(--va-on-accent); }
 .va-daypart { display: flex; align-items: center; gap: 8px; margin: 4px 0 8px; font-weight: 600; }
@@ -110,6 +116,22 @@ input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--va-accen
   background: var(--va-surface); color: var(--va-text); border: 1.5px solid var(--va-border);
   border-radius: 6px; padding: 6px 10px; font-size: 0.9rem; box-shadow: 0 3px 10px var(--va-shadow);
 }
+
+/* T49: the short agent tooltip (icon + text on every row) */
+.va-tip-rich { padding: 8px 12px; max-width: 320px; }
+.va-atip { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; font-size: 0.9rem; line-height: 1.3; }
+.va-atip-head { display: flex; align-items: center; gap: 8px; padding-bottom: 5px; margin-bottom: 1px; border-bottom: 1px solid var(--va-border); }
+.va-atip-head svg { flex: none; }
+.va-atip-who { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.va-atip-name { font-weight: 700; overflow-wrap: anywhere; }
+.va-atip-role { color: var(--va-text-muted); font-size: 0.82rem; }
+.va-atip-level { flex: none; align-self: flex-start; background: var(--va-accent); color: var(--va-on-accent); border-radius: 999px; padding: 1px 8px; font-size: 0.78rem; font-weight: 700; white-space: nowrap; }
+.va-atip-row { display: flex; align-items: flex-start; gap: 7px; min-width: 0; }
+.va-atip-row svg { flex: none; margin-top: 1px; }
+.va-atip-status { font-weight: 600; }
+.va-atip-id { flex: none; font-variant-numeric: tabular-nums; }
+.va-atip-title { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.va-atip-more { color: var(--va-text-muted); white-space: nowrap; }
 
 /* chronicle section under the scene */
 .va-chronicle { margin-top: 14px; background: var(--va-parchment); color: var(--va-ink); border: 3px solid var(--va-wood-dark); border-radius: 10px; padding: 10px 16px 12px; }

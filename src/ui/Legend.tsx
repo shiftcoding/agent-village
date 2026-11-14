@@ -40,8 +40,8 @@ const STATES: StateRow[] = [
   { icon: 'review', label: 'In review', rule: 'A task with status review. The agent waits at the gatehouse beside the paladin.', art: <CharSample cls="ranger" pose="wait" /> },
   { icon: 'blocked', label: 'Blocked', rule: 'A task with status blocked. The agent stands on the town hall steps under a glowing "!". Any agent with a blocked task shows the "!", even while doing something else.', art: <CharSample cls="cleric" pose="stand" alert /> },
   { icon: 'todo', label: 'Todo only', rule: 'Only todo tasks. The agent studies the quest board in the town square.', art: <CharSample cls="cartographer" pose="study" /> },
-  { icon: 'idle', label: 'Idle', rule: 'No open tasks. The agent sits at the tavern with a mug.', art: <CharSample cls="jester" pose="rest" mug /> },
-  { icon: 'idle', label: 'Idle, zzz', rule: 'Idle, and no log line from this agent for 24 hours. Shown with "zzz".', art: <CharSample cls="jester" pose="rest" mug sleepy /> },
+  { icon: 'idle', label: 'Idle', rule: 'No open tasks. The agent rests inside the tavern: the board in front says how many are inside, and the tavern lists them.', art: <CharSample cls="jester" pose="rest" mug /> },
+  { icon: 'idle', label: 'Idle, zzz', rule: 'Idle, and no log line from this agent for 24 hours. Listed with "zzz" in the tavern; a zzz drifts from the tavern roof.', art: <CharSample cls="jester" pose="rest" mug sleepy /> },
   { icon: 'stranger', label: 'Unknown agent', rule: 'The name in progress.md matches no agent in the roster (a typo or a new agent). Drawn as a hooded stranger.', art: <CharSample cls="stranger" pose="stand" /> },
   {
     icon: 'todo',

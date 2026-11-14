@@ -13,8 +13,7 @@ import {
   SPECIALIST_ANCHORS,
   SPECIALIST_ORIGINS,
   SPECIALIST_PLACES,
-  TAVERN_SIT_SPOTS,
-  TAVERN_STAND_SPOTS,
+  TAVERN_ANCHORS,
   TOWN_HALL_STEP_SPOTS,
   WORKSHOP_ANCHORS,
   gridToScene,
@@ -105,6 +104,8 @@ export interface PlacedChar {
   sleepy: boolean;
   /** Body width in scene units (troupe is wider). */
   width: number;
+  /** T48: resting inside the tavern. Drawn hidden at the door once arrived, not focusable, no name tag. */
+  inside: boolean;
 }
 
 interface Spot extends Pt {
@@ -126,7 +127,8 @@ function spotsOf(group: StructureId, village: Village): Spot[] {
     case 'gatehouse':
       return at(SCENE.gatehouse, GATEHOUSE_SPOTS);
     case 'tavern':
-      return [...at(SCENE.tavern, TAVERN_SIT_SPOTS, true), ...at(SCENE.tavern, TAVERN_STAND_SPOTS)];
+      // T48: tavern guests are inside; they all walk to the door and vanish there
+      return at(SCENE.tavern, [TAVERN_ANCHORS.door]);
     case 'tally':
       return [];
     default: {
@@ -195,6 +197,11 @@ function reservedIndex(a: Agent, group: StructureId): number | null {
  * are offset deterministically in steps from the first spots, never stacked on the same point.
  * The result is sorted for drawing: structure order first (so Tab follows the scene), then y, then x.
  */
+/** T48: the agents resting inside the tavern (every agent whose place is the tavern), in roster order. */
+export function tavernGuests(village: Village): Agent[] {
+  return village.agents.filter((a) => groupOf(a, village) === 'tavern');
+}
+
 export function placeCharacters(village: Village): PlacedChar[] {
   const order = structures(village).map((s) => s.id);
   const groups = new Map<StructureId, Agent[]>();
@@ -208,6 +215,13 @@ export function placeCharacters(village: Village): PlacedChar[] {
     if (!members?.length) continue;
     const spots = spotsOf(id, village);
     if (!spots.length) continue;
+    if (id === 'tavern') {
+      const door = spots[0] as Spot;
+      for (const a of members) {
+        out.push({ key: a.name, agent: a, group: id, x: door.x, y: door.y, pose: 'stand', mug: false, alert: a.state === 'blocked' || a.hasBlocked, sleepy: false, width: widthOf(a), inside: true });
+      }
+      continue;
+    }
     const taken = spots.map(() => false);
     const placed: PlacedChar[] = [];
     const rank = (a: Agent): number => (reservedIndex(a, id) !== null ? 0 : a.personas?.length ? 1 : a.sleepy ? 2 : 3);
@@ -245,10 +259,11 @@ export function placeCharacters(village: Village): PlacedChar[] {
         x: spot.x,
         y: spot.y,
         pose: a.name === 'orchestrator' && a.state === 'idle' ? 'stand' : poseOf(a, sit),
-        mug: a.state === 'idle' && id === 'tavern',
+        mug: false,
         alert: a.state === 'blocked' || a.hasBlocked,
-        sleepy: a.sleepy && id === 'tavern',
+        sleepy: false,
         width: w,
+        inside: false,
       });
     }
     out.push(...placed.sort((p, q) => p.y - q.y || p.x - q.x));

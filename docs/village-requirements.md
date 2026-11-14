@@ -129,7 +129,7 @@ Every state has one visual and a text label; status is never shown by color alon
 | review | Hands a scroll to the paladin, or waits beside him | Gatehouse |
 | blocked | Stands still with a glowing "!" above the head | Town hall steps |
 | todo only | Studies the quest board | Town square |
-| no tasks | Sits with a mug, "zzz" after 24 hours | Tavern |
+| no tasks | Rests inside the tavern: a board shows how many are inside, a "zzz" drifts from the roof when one has no log line for 24 hours (Ivan, 2026-11-14) | Tavern |
 
 ### Project health
 

@@ -5,8 +5,8 @@ import review from '../../fixtures/flowbro/docs/reviews/2026-11-20-code-review.m
 import cfg from '../../village.config.json';
 import { buildVillage } from '../data/model';
 import type { VillageConfig } from '../data/types';
-import { SCENE } from '../art';
-import { estimateMeasure, layoutTags, placeCharacters, structures, tagWidth } from './layout';
+import { SCENE, TAVERN_ANCHORS } from '../art';
+import { estimateMeasure, layoutTags, placeCharacters, structures, tagWidth, tavernGuests } from './layout';
 
 // Fixture only and a fixed clock, so the live docs/progress.md and today's date cannot change the result.
 const config = cfg as unknown as VillageConfig;
@@ -30,9 +30,21 @@ describe('placeCharacters', () => {
     expect(others.every((c) => c.y > (orch?.y ?? 0))).toBe(true);
   });
 
-  it('never puts two characters on the same point', () => {
-    const seen = new Set(chars.map((c) => `${Math.round(c.x)},${Math.round(c.y)}`));
-    expect(seen.size).toBe(chars.length);
+  it('never puts two characters on the same point (tavern guests are inside, at the door)', () => {
+    const out = chars.filter((c) => !c.inside);
+    const seen = new Set(out.map((c) => `${Math.round(c.x)},${Math.round(c.y)}`));
+    expect(seen.size).toBe(out.length);
+  });
+
+  it('puts every tavern agent inside, at the tavern door, and nobody else', () => {
+    const inside = chars.filter((c) => c.inside);
+    expect(inside.map((c) => c.key).sort()).toEqual(tavernGuests(village).map((a) => a.name).sort());
+    expect(inside.length).toBeGreaterThan(0);
+    const door = { x: SCENE.tavern.x + TAVERN_ANCHORS.door.x, y: SCENE.tavern.y + TAVERN_ANCHORS.door.y };
+    for (const c of inside) {
+      expect({ x: c.x, y: c.y, group: c.group, mug: c.mug, sleepy: c.sleepy }).toEqual({ ...door, group: 'tavern', mug: false, sleepy: false });
+    }
+    for (const c of chars.filter((x) => !x.inside)) expect(c.group).not.toBe('tavern');
   });
 
   it('maps states to poses', () => {
@@ -41,7 +53,7 @@ describe('placeCharacters', () => {
     expect(pose('relationship-advisor')?.pose).toBe('wait');
     expect(pose('ui-designer')).toMatchObject({ pose: 'stand', alert: true });
     expect(pose('accessibility-tester')?.pose).toBe('study');
-    expect(pose('bro-writer')).toMatchObject({ mug: true });
+    expect(pose('bro-writer')).toMatchObject({ inside: true });
   });
 
   it('draws structures back to front', () => {
